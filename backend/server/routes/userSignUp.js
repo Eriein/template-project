@@ -7,7 +7,7 @@ const newUserModel = require('../models/userModel')
 
 router.post('/signup', async (req, res) => {
     const { error } = newUserValidation(req.body);
-    console.log(error)
+    console.log(JSON.stringify(error));
     if (error) return res.status(400).send({ message: error.errors[0].message });
 
     const { username, email, password } = req.body
