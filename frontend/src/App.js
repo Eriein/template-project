@@ -12,7 +12,7 @@ import Login from "./components/pages/loginPage";
 import Signup from "./components/pages/registerPage";
 import PrivateUserProfile from "./components/pages/privateUserProfilePage";
 import MbtaAlertsPage from "./components/pages/mbtaAlerts";
-import MbtaArrivalsPage from "./components/pages/mbtaArrivalPage";
+import MbtaArrivalsPage from "./components/pages/mbtaArrivalsPage";
 import { createContext, useState, useEffect } from "react";
 import getUserInfo from "./utilities/decodeJwt";
 
@@ -36,7 +36,7 @@ const App = () => {
           <Route exact path="/login" element={<Login />} />
           <Route exact path="/signup" element={<Signup />} />
           <Route exact path="/mbtaAlerts" element={<MbtaAlertsPage />} />
-          <Route exact path="/mbtaArrivals" element={<MbtaArrivalsPage />} />
+          <Route exact path="/mbtaArrivalsPage" element={<MbtaArrivalsPage />} />
           <Route path="/privateUserProfile" element={<PrivateUserProfile />} />
           
         </Routes>
