@@ -1,0 +1,10 @@
+###
+GET http://localhost:8081/users/zipcodes
+Content-Type: application/json
+###
+PUT http://localhost:8081/users/507f191e810c19729de860ea/zipcode
+Content-Type: application/json
+
+{
+  "zipCode": "01970"
+}
