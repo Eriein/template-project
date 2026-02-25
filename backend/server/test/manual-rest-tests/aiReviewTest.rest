@@ -1,0 +1,13 @@
+### Test Case: Create a New Review
+POST http://localhost:8081/user/reviews
+Content-Type: application/json
+
+{
+  "review": "This is widely considered one of the best superhero movies ever made. It focuses on Peter Parker (Tobey Maguire) struggling to balance his \"normal\" life with being a hero. The Story: Peter is failing classes, losing his job, and struggling to stay friends with Mary Jane. At the same time, he has to fight Doctor Octopus, a scientist whose mechanical arms have taken over his mind. The Themes: The movie is about sacrifice. It shows that being a hero isn't always fun—it actually makes Peter’s life very difficult. The Action: The fight on top of the moving train is still famous today for being one of the best action scenes in cinema history.",
+  "omdbId": "tt12345",
+  "userId": "697a39e7bb361ffd9cdb8bbf"
+}
+
+### Test Case: List All Reviews for a Specific User
+GET http://localhost:8081/user/reviews?userId=697a39e7bb361ffd9cdb8bbf
+Content-Type: application/json
