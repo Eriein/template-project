@@ -9,15 +9,11 @@ router.post('/reviews', async (req, res) => {
   const normalizedReview = typeof review === 'string' ? review.trim() : review;
   const normalizedOmdbId = typeof omdbId === 'string' ? omdbId.trim() : omdbId;
 
-  if (!review || omdbId === undefined || !userId) {
+  if (omdbId === undefined || !userId) {
     return res.status(400).json({
       error: 'Missing required fields.',
-      required: ['review', 'omdbId', 'userId']
+      required: ['omdbId', 'userId']
     });
-  }
-
-  if (typeof review !== 'string') {
-    return res.status(400).json({ error: 'review must be a string.' });
   }
 
   if (typeof omdbId !== 'string' || normalizedOmdbId.length === 0) {
@@ -31,24 +27,33 @@ router.post('/reviews', async (req, res) => {
     return res.status(400).json({ error: 'userId must be a valid ObjectId.' });
   }
 
-  // 2. Basic Validation: Check review length
-  if (normalizedReview.length < 50 || normalizedReview.length > 1000) {
-    return res.status(400).send("Review must be between 50 and 1000 characters.");
-  }
-
   try {
-    // 3. Duplicate check: same user + movie + review text
+    // 2. Cache hit check: same user + movie
     const existingReview = await AIReviewCache.findOne({
       userId: userId,
-      omdbId: normalizedOmdbId,
-      review: normalizedReview
+      omdbId: normalizedOmdbId
     });
 
     if (existingReview) {
-      return res.status(409).json({
-        error: 'You already created this review.',
-        reviewId: existingReview._id
+      return res.status(200).json({
+        cached: true,
+        review: existingReview
       });
+    }
+
+    // 3. Validation for cache miss (new entry required)
+    if (!review) {
+      return res.status(400).json({
+        error: 'review is required when no cached review exists.'
+      });
+    }
+
+    if (typeof review !== 'string') {
+      return res.status(400).json({ error: 'review must be a string.' });
+    }
+
+    if (normalizedReview.length < 50 || normalizedReview.length > 1000) {
+      return res.status(400).send("Review must be between 50 and 1000 characters.");
     }
 
     // 4. Rate Limit Check: Cooldown period (30 seconds)
@@ -68,10 +73,7 @@ router.post('/reviews', async (req, res) => {
       userId: userId,
       date: { $gte: twentyFourHoursAgo }
     });
-
-    if (dailyReviewCount >= 3) {
-      return res.status(429).send("Daily limit reached.");
-    }
+    // To do add limit later
 
     // 6. Create and save the new review
     const newReview = new AIReviewCache({
@@ -83,7 +85,10 @@ router.post('/reviews', async (req, res) => {
     await newReview.save();
     
     // Send back the newly created resource
-    res.status(201).json(newReview);
+    res.status(201).json({
+      cached: false,
+      review: newReview
+    });
 
   } catch (err) {
     if (err.name === 'ValidationError') {
@@ -101,8 +106,14 @@ router.post('/reviews', async (req, res) => {
     }
 
     if (err.code === 11000) {
-      return res.status(409).json({
-        error: 'You already created this review.'
+      const cachedReview = await AIReviewCache.findOne({
+        userId: userId,
+        omdbId: normalizedOmdbId
+      });
+
+      return res.status(200).json({
+        cached: true,
+        review: cachedReview
       });
     }
 

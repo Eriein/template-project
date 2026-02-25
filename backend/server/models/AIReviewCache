@@ -28,6 +28,6 @@ const AIReviewCache= new mongoose.Schema(
   { collection: "AIReviewCache" }
 );
 
-AIReviewCache.index({ userId: 1, omdbId: 1, review: 1 }, { unique: true });
+AIReviewCache.index({ userId: 1, omdbId: 1 }, { unique: true });
 
 module.exports = mongoose.model('AIReviewCache', AIReviewCache);
