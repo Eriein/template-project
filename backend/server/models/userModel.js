@@ -16,7 +16,12 @@ const newUserSchema = new mongoose.Schema(
     password: {
       required: true,
       type: String,
-      min : 8
+      min: 8
+    },
+    zipCode: {
+      type: String,
+      default: "",
+      trim: true,
     },
     date: {
       type: Date,
