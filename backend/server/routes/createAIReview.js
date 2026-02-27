@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const AIReviewCache = require('../models/AIReviewCache'); // Path to model
+const AIReviewCache = require('../models/AIReviewCache.js'); // Path to model
 
 router.post('/reviews', async (req, res) => {
   // 1. Get data from the request body 

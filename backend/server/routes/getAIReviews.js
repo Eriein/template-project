@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const AIReviewCache = require('../models/AIReviewCache');
+const AIReviewCache = require('../models/AIReviewCache.js');
 
 router.get('/reviews', async (req, res) => {
   try {
