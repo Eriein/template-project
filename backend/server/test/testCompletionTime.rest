@@ -1,0 +1,25 @@
+#1
+### Create Completion Time
+POST http://localhost:8081/completion-times/create
+Content-Type: application/json
+
+{
+  "user": "PASTE_USER_OBJECT_ID_HERE",
+  "timeInSeconds": 95
+}
+
+#2
+### Get All Completion Times
+GET http://localhost:8081/completion-times/getAll
+
+#3
+### Update Completion Time
+PUT http://localhost:8081/completion-times/update/PASTE_COMPLETION_ID_HERE
+Content-Type: application/json
+
+{
+  "timeInSeconds": 80
+}
+#4
+### Delete Completion Time
+DELETE http://localhost:8081/completion-times/delete/PASTE_COMPLETION_ID_HERE
