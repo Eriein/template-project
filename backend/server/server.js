@@ -31,9 +31,6 @@ app.use('/user', getAllUsersRoute)
 app.use('/user', getUserByIdRoute)
 app.use('/user', editUser)
 app.use('/user', deleteUser)
-app.use(require("./routes/userSetZipCode"));
-app.use(require("./routes/userGetAllZipCodes"));
-//app.use for completion time
 app.use('/completion-times', completionTimeCreate)
 app.use('/completion-times', completionTimeRead)
 app.use('/completion-times', completionTimeUpdate)
