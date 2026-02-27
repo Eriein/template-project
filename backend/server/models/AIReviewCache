@@ -1,0 +1,33 @@
+const mongoose = require("mongoose");
+
+//plot schema/model
+const AIReviewCache= new mongoose.Schema(
+  {
+    review: {
+        type: String,
+        required: true,
+        min : 50,
+        max : 1000,
+        label: "review"
+    },
+    omdbId: {
+      type: String,
+      required: true,
+      label: "omdbId"
+    },
+    userId:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'users',
+      required: true
+    },
+    date: {
+      type: Date,
+      default: Date.now,
+    }
+  },
+  { collection: "AIReviewCache" }
+);
+
+AIReviewCache.index({ userId: 1, omdbId: 1 }, { unique: true });
+
+module.exports = mongoose.model('AIReviewCache', AIReviewCache);
