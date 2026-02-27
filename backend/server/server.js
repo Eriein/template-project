@@ -15,6 +15,8 @@ const completionTimeUpdate = require('./routes/completionTimeUpdate')
 const completionTimeDelete = require('./routes/completionTimeDelete')
 const createAIReview = require('./routes/createAIReview');
 const getAIReviews = require('./routes/getAIReviews');
+const userSetZipCode = require("./routes/userSetZipCode");
+const userGetAllZipCodes = require("./routes/userGetAllZipCodes");
 
 require('dotenv').config();
 const SERVER_PORT = 8081
@@ -37,6 +39,9 @@ app.use('/completion-times', completionTimeUpdate)
 app.use('/completion-times', completionTimeDelete)
 app.use('/user', createAIReview)
 app.use('/user', getAIReviews)
+app.use('/user', userSetZipCode);
+app.use('/user', userGetAllZipCodes);
+
 
 app.listen(SERVER_PORT, (req, res) => {
     console.log(`The backend service is running on port ${SERVER_PORT} and waiting for requests.`);

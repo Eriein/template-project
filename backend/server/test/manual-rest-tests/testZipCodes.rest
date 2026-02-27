@@ -1,15 +1,15 @@
 ###
-PUT http://localhost:8081/users/697299e277073fc8e6a06a60/zipcode
+PUT http://localhost:8081/user/users/697299e277073fc8e6a06a60/zipcode
 Content-Type: application/json
 
 {
   "zipCode": "01970"
 }
 ###
-GET http://localhost:8081/users/zipcodes
+GET http://localhost:8081/user/users/zipcodes
 Content-Type: application/json
 ###
-PUT http://localhost:8081/users/507f191e810c19729de860ea/zipcode
+PUT http://localhost:8081/user/users/507f191e810c19729de860ea/zipcode
 Content-Type: application/json
 
 {
