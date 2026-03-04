@@ -1,0 +1,49 @@
+@baseUrl = http://127.0.0.1:8081
+@scoresPath = /scores
+@contentType = application/json
+
+###
+# Create a score (POST /scores)
+POST {{baseUrl}}{{scoresPath}}
+Content-Type: {{contentType}}
+
+{
+  "username": "devon",
+  "score": 42,
+  "date": "2026-02-27T12:00:00.000Z"
+}
+
+###
+# Create another score (score as string is OK; server converts it)
+POST {{baseUrl}}{{scoresPath}}
+Content-Type: {{contentType}}
+
+{
+  "username": "alex",
+  "score": "99",
+  "date": "2026-02-26"
+}
+
+###
+# Validation test: missing fields -> should return 400
+POST {{baseUrl}}{{scoresPath}}
+Content-Type: {{contentType}}
+
+{
+  "username": "missingStuff"
+}
+
+###
+# Get all scores sorted by date desc (GET /scores)
+GET {{baseUrl}}{{scoresPath}}
+
+###
+# Get one score by id (GET /scores/:id)
+# 1) Run "Get all scores" above
+# 2) Copy an _id from the response
+@scoreId = 69a6f223f520c7cfa66932dd
+GET {{baseUrl}}{{scoresPath}}/{{scoreId}}
+
+###
+# Invalid id test -> should return 400 "Invalid id"
+GET {{baseUrl}}{{scoresPath}}/not-a-real-id
