@@ -98,6 +98,17 @@
   opacity: 0.7;
 }
 
+.movie-action-btn:not(:disabled) {
+  cursor: pointer;
+  opacity: 1;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.movie-action-btn:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(236, 19, 37, 0.2);
+}
+
 .movie-hero__chips {
   display: flex;
   gap: 10px;
@@ -218,7 +229,15 @@
 
 .movie-cast-actions {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
   margin-top: 6px;
+  align-items: flex-start;
+}
+
+.movie-cast-helper {
+  font-size: 0.85rem;
+  color: rgba(245, 241, 242, 0.6);
 }
 
 .movie-cast-pill {
@@ -250,6 +269,115 @@
 .movie-cast-footer {
   margin-top: 12px;
   color: rgba(245, 241, 242, 0.6);
+}
+
+.movie-card--reviews {
+  margin-top: 28px;
+}
+
+.movie-ai-review {
+  border: 1px solid rgba(236, 19, 37, 0.25);
+  border-radius: 14px;
+  padding: 18px;
+  background: rgba(20, 8, 11, 0.7);
+}
+
+.movie-ai-review__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.movie-ai-review__header h3 {
+  margin: 0;
+  font-family: "Outfit", sans-serif;
+  font-size: 1rem;
+}
+
+.movie-ai-badge {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+
+.movie-ai-badge.is-new {
+  color: #0f2c1d;
+  background: rgba(72, 204, 132, 0.2);
+  border-color: rgba(72, 204, 132, 0.4);
+}
+
+.movie-ai-badge.is-cached {
+  color: #f7d7da;
+  background: rgba(236, 19, 37, 0.18);
+  border-color: rgba(236, 19, 37, 0.4);
+}
+
+.movie-ai-list {
+  display: grid;
+  gap: 16px;
+}
+
+.movie-ai-item {
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(12, 6, 8, 0.6);
+}
+
+.movie-ai-item__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.movie-ai-item__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(245, 241, 242, 0.55);
+  margin-bottom: 0;
+}
+
+.movie-ai-item__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.movie-ai-delete {
+  border: 1px solid rgba(236, 19, 37, 0.5);
+  background: transparent;
+  color: #f7d7da;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.movie-ai-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.movie-ai-delete:not(:disabled):hover {
+  background: rgba(236, 19, 37, 0.15);
+}
+
+.movie-ai-item__dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(245, 241, 242, 0.4);
 }
 
 @media (max-width: 992px) {

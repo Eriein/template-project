@@ -16,6 +16,7 @@ const completionTimeUpdate = require('./routes/completionTimeUpdate')
 const completionTimeDelete = require('./routes/completionTimeDelete')
 const createAIReview = require('./routes/createAIReview');
 const getAIReviews = require('./routes/getAIReviews');
+const deleteAIReview = require('./routes/deleteAIReview');
 const getUserScore = require("./routes/getUserScore");
 const userSetZipCode = require("./routes/userSetZipCode");
 const userGetAllZipCodes = require("./routes/userGetAllZipCodes");
@@ -39,6 +40,7 @@ app.use('/completion-times', completionTimeUpdate)
 app.use('/completion-times', completionTimeDelete)
 app.use('/user', createAIReview)
 app.use('/user', getAIReviews)
+app.use('/user', deleteAIReview)
 app.use("/scores", getUserScore);
 app.use('/user', userSetZipCode);
 app.use('/user', userGetAllZipCodes);

@@ -49,7 +49,7 @@ Content-Type: application/json
   "userId": "bad-id"
 }
 
-### Test Case: Missing review on cache miss (should return 400)
+### Test Case: AI-generated review (no review in body; requires GEMINI_API_KEY)
 POST http://localhost:8081/user/reviews
 Content-Type: application/json
 
@@ -67,3 +67,15 @@ Content-Type: application/json
   "omdbId": "tt12358",
   "userId": "697a39e7bb361ffd9cdb8bbf"
 }
+
+### Test Case: Delete review (replace reviewId with a real one)
+DELETE http://localhost:8081/user/reviews/REVIEW_ID_HERE?userId=697a39e7bb361ffd9cdb8bbf
+Content-Type: application/json
+
+### Test Case: Delete review with invalid reviewId (should return 400)
+DELETE http://localhost:8081/user/reviews/not-an-id?userId=697a39e7bb361ffd9cdb8bbf
+Content-Type: application/json
+
+### Test Case: Delete review with wrong userId (should return 404)
+DELETE http://localhost:8081/user/reviews/REVIEW_ID_HERE?userId=000000000000000000000000
+Content-Type: application/json
