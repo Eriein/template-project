@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { Alert, Badge, Card, Col, Container, Row, Spinner } from 'react-bootstrap';
+import { Alert, Badge, Container, Spinner } from 'react-bootstrap';
+import '../../css/movieDetailPage.css';
 
 const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_SERVER_URI || 'http://localhost:8081';
 
@@ -63,80 +64,105 @@ const MovieDetailPage = () => {
   const hasPlot = plot.introduction || plot.keyEvents || plot.conclusion;
 
   return (
-    <Container className="my-4">
-      <Row className="mb-3">
-        <Col>
-          <h1 className="mb-1">{movie?.title || 'Movie Detail'}</h1>
-          {movie?.imdbId && (
-            <Badge bg="secondary">IMDb: {movie.imdbId}</Badge>
-          )}
-        </Col>
-      </Row>
+    <div className="movie-detail-page">
+      <header className="movie-hero">
+        <div
+          className="movie-hero__bg"
+          style={posterUrl ? { backgroundImage: `url(${posterUrl})` } : undefined}
+        />
+        <div className="movie-hero__overlay" />
+        <Container className="movie-hero__content">
+          <div className="movie-hero__poster">
+            {posterUrl ? (
+              <img src={posterUrl} alt={`${movie?.title || 'Movie'} poster`} />
+            ) : (
+              <div className="movie-hero__poster-fallback">Poster not available</div>
+            )}
+          </div>
+          <div className="movie-hero__info">
+            <h1>{movie?.title || 'Movie Detail'}</h1>
+            <p className="movie-hero__subtitle">
+              {movie?.title
+                ? 'A closer look at the story, cast, and key plot beats.'
+                : 'Loading movie details and story highlights.'}
+            </p>
+          </div>
+        </Container>
+      </header>
 
-      {error && <Alert variant="danger">{error}</Alert>}
-      {loading && <Spinner animation="border" variant="primary" />}
+      <Container className="movie-detail-body">
+        {error && <Alert variant="danger">{error}</Alert>}
+        {loading && <Spinner animation="border" variant="primary" />}
 
-      {!loading && !error && movie && (
-        <Row className="g-4">
-          <Col md={4}>
-            <Card>
-              {posterUrl ? (
-                <Card.Img variant="top" src={posterUrl} alt={`${movie.title} poster`} />
-              ) : (
-                <div className="d-flex align-items-center justify-content-center bg-light text-muted" style={{ height: '22rem' }}>
-                  Poster not available
-                </div>
-              )}
-            </Card>
-          </Col>
-          <Col md={8}>
-            <Card className="mb-3">
-              <Card.Body>
-                <Card.Title>Actors</Card.Title>
+        {!loading && !error && movie && (
+          <div className="movie-detail-grid">
+            <section className="movie-card movie-card--plot">
+              <header className="movie-card__header">
+                <h2>Plot Summary</h2>
+                <span className="movie-card__tag">Public Access</span>
+              </header>
+              <div className="movie-card__content">
+                {hasPlot ? (
+                  <>
+                    {plot.introduction && (
+                      <div className="movie-plot-block">
+                        <h3>Introduction</h3>
+                        <p>{plot.introduction}</p>
+                      </div>
+                    )}
+                    {plot.keyEvents && (
+                      <div className="movie-plot-block">
+                        <h3>Key Events</h3>
+                        <p>{plot.keyEvents}</p>
+                      </div>
+                    )}
+                    {plot.conclusion && (
+                      <div className="movie-plot-block">
+                        <h3>Conclusion</h3>
+                        <p>{plot.conclusion}</p>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="movie-card__empty">Plot not available.</p>
+                )}
+              </div>
+            </section>
+
+            <aside className="movie-card movie-card--cast">
+              <header className="movie-card__header">
+                <h2>Top Cast</h2>
+                <span className="movie-card__tag">Featured</span>
+              </header>
+              <div className="movie-card__content">
                 {actors.length > 0 ? (
-                  <div className="d-flex flex-wrap gap-2">
+                  <div className="movie-cast-grid">
                     {actors.map((actor) => (
-                      <Badge bg="info" text="dark" key={actor}>
-                        {actor}
-                      </Badge>
+                      <div className="movie-cast-pill" key={actor}>
+                        <span className="movie-cast-avatar">{actor[0]}</span>
+                        <span className="movie-cast-name">{actor}</span>
+                      </div>
                     ))}
                   </div>
                 ) : (
-                  <Card.Text>Actors not available.</Card.Text>
+                  <p className="movie-card__empty">Actors not available.</p>
                 )}
-              </Card.Body>
-            </Card>
-
-            <Card className="mb-4">
-              <Card.Body className="py-4">
-                <Card.Title>Plot</Card.Title>
-                {hasPlot ? (
-                  <div className="d-flex flex-column gap-3 mt-3">
-                    {plot.introduction && (
-                      <Card.Text className="mb-0">
-                        <strong>Introduction:</strong> {plot.introduction}
-                      </Card.Text>
-                    )}
-                    {plot.keyEvents && (
-                      <Card.Text className="mb-0">
-                        <strong>Key Events:</strong> {plot.keyEvents}
-                      </Card.Text>
-                    )}
-                    {plot.conclusion && (
-                      <Card.Text className="mb-0">
-                        <strong>Conclusion:</strong> {plot.conclusion}
-                      </Card.Text>
-                    )}
+                <div className="movie-cast-actions">
+                  <button className="movie-action-btn" type="button" disabled>
+                    Generate AI Review
+                  </button>
+                </div>
+                {actors.length > 0 && (
+                  <div className="movie-cast-footer">
+                    <Badge bg="secondary">Cast list sourced from OMDb</Badge>
                   </div>
-                ) : (
-                  <Card.Text>Plot not available.</Card.Text>
                 )}
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      )}
-    </Container>
+              </div>
+            </aside>
+          </div>
+        )}
+      </Container>
+    </div>
   );
 };
 
