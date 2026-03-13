@@ -19,6 +19,7 @@ const getAIReviews = require('./routes/getAIReviews');
 const getUserScore = require("./routes/getUserScore");
 const userSetZipCode = require("./routes/userSetZipCode");
 const userGetAllZipCodes = require("./routes/userGetAllZipCodes");
+const plotSummaryRoute = require('./routes/plotSummary');
 
 require('dotenv').config();
 const SERVER_PORT = 8081
@@ -42,6 +43,8 @@ app.use("/scores", getUserScore);
 app.use('/user', userSetZipCode);
 app.use('/user', userGetAllZipCodes);
 app.use("/movieglu", movieGluRoutes);
+
+app.use('/movies', plotSummaryRoute);
 
 
 app.listen(SERVER_PORT, (req, res) => {

@@ -13,6 +13,7 @@ import Signup from "./components/pages/registerPage";
 import PrivateUserProfile from "./components/pages/privateUserProfilePage";
 import MbtaAlertsPage from "./components/pages/mbtaAlerts";
 import MbtaArrivalsPage from "./components/pages/mbtaArrivalsPage";
+import MovieDetailPage from "./components/pages/movieDetailPage";
 import { createContext, useState, useEffect } from "react";
 import getUserInfo from "./utilities/decodeJwt";
 import CinemaSearchPage from "./components/pages/cinemaSearchPage";
@@ -43,8 +44,7 @@ const App = () => {
           <Route path="/privateUserProfile" element={<PrivateUserProfile />} />
           <Route path="/cinemas" element={<CinemaSearchPage />} />
           <Route path="/cinema/:cinemaId" element={<CinemaDetailPage />} />
-
-
+          <Route path="/movie/:imdbId" element={<MovieDetailPage />} />
         </Routes>
       </UserContext.Provider>
     </>

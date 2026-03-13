@@ -21,3 +21,49 @@ Content-Type: application/json
 ### Test Case: List All Reviews for a Specific User
 GET http://localhost:8081/user/reviews?userId=697a39e7bb361ffd9cdb8bbf
 Content-Type: application/json
+
+### Test Case: Missing userId on list (should return 400)
+GET http://localhost:8081/user/reviews
+Content-Type: application/json
+
+### Test Case: Invalid userId on list (should return 400)
+GET http://localhost:8081/user/reviews?userId=not-an-object-id
+Content-Type: application/json
+
+### Test Case: Missing omdbId (should return 400)
+POST http://localhost:8081/user/reviews
+Content-Type: application/json
+
+{
+  "review": "This review is long enough to pass validation, but omdbId is missing so it should fail.",
+  "userId": "697a39e7bb361ffd9cdb8bbf"
+}
+
+### Test Case: Invalid userId (should return 400)
+POST http://localhost:8081/user/reviews
+Content-Type: application/json
+
+{
+  "review": "This review is long enough to pass validation, but userId is invalid so it should fail.",
+  "omdbId": "tt12355",
+  "userId": "bad-id"
+}
+
+### Test Case: Missing review on cache miss (should return 400)
+POST http://localhost:8081/user/reviews
+Content-Type: application/json
+
+{
+  "omdbId": "tt12357",
+  "userId": "697a39e7bb361ffd9cdb8bbf"
+}
+
+### Test Case: Review too short (should return 400)
+POST http://localhost:8081/user/reviews
+Content-Type: application/json
+
+{
+  "review": "Too short.",
+  "omdbId": "tt12358",
+  "userId": "697a39e7bb361ffd9cdb8bbf"
+}

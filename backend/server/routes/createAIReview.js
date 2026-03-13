@@ -104,7 +104,7 @@ router.post('/reviews', async (req, res) => {
         value: err.value
       });
     }
-
+    // avoids race condition 
     if (err.code === 11000) {
       const cachedReview = await AIReviewCache.findOne({
         userId: userId,
