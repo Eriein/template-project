@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_SERVER_URI || "http://localhost:8081";
+const BACKEND_URL =
+    process.env.REACT_APP_BACKEND_SERVER_URI || "http://localhost:8081";
 
-const cinemaSearchPage = () => {
+const CinemaSearchPage = () => {
     const navigate = useNavigate();
 
     const [zipCode, setZipCode] = useState("");
@@ -11,13 +12,10 @@ const cinemaSearchPage = () => {
     const [loading, setLoading] = useState(false);
     const [pageLoaded, setPageLoaded] = useState(false);
     const [error, setError] = useState("");
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    useEffect(() => {
-        setPageLoaded(true);
-    }, []);
-
-    const handleSearch = async () => {
-        if (!zipCode.trim()) {
+    const searchCinemas = async (zip) => {
+        if (!zip || !zip.trim()) {
             setError("Please enter a ZIP Code.");
             return;
         }
@@ -27,7 +25,7 @@ const cinemaSearchPage = () => {
 
         try {
             const response = await fetch(
-                `${BACKEND_URL}/movieglu/nearby?zip=${encodeURIComponent(zipCode)}`
+                `${BACKEND_URL}/movieglu/nearby?zip=${encodeURIComponent(zip)}`
             );
 
             const data = await response.json();
@@ -44,6 +42,23 @@ const cinemaSearchPage = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    useEffect(() => {
+        setPageLoaded(true);
+
+        const savedToken = localStorage.getItem("accessToken");
+        const savedZipCode = localStorage.getItem("zipCode");
+
+        if (savedToken && savedZipCode) {
+            setIsLoggedIn(true);
+            setZipCode(savedZipCode);
+            searchCinemas(savedZipCode);
+        }
+    }, []);
+
+    const handleSearch = async () => {
+        searchCinemas(zipCode);
     };
 
     const handleKeyDown = (e) => {
@@ -72,11 +87,17 @@ const cinemaSearchPage = () => {
                     <div style={styles.heroBadge}>Movie Discovery</div>
                     <h1 style={styles.heroTitle}>Find Nearby Cinemas</h1>
                     <p style={styles.heroSubtitle}>
-                        Search stylishly. Explore nearby cinemas and jump into movie showtimes
-                        with one click.
+                        Search stylishly. Explore nearby cinemas and jump into movie
+                        showtimes with one click.
                     </p>
 
                     <div style={styles.searchCard}>
+                        {isLoggedIn && zipCode ? (
+                            <div style={styles.loggedInMessage}>
+                                Using your saved ZIP Code: <strong>{zipCode}</strong>
+                            </div>
+                        ) : null}
+
                         <div style={styles.searchRow}>
                             <input
                                 type="text"
@@ -125,7 +146,9 @@ const cinemaSearchPage = () => {
                             <div style={styles.emptyIcon}>🎬</div>
                             <h3 style={styles.emptyTitle}>No cinemas to show yet</h3>
                             <p style={styles.emptyText}>
-                                Enter a ZIP Code above and search for nearby cinemas.
+                                {isLoggedIn
+                                    ? "We could not find cinemas for your saved ZIP Code."
+                                    : "Enter a ZIP Code above and search for nearby cinemas."}
                             </p>
                         </div>
                     ) : (
@@ -145,7 +168,8 @@ const cinemaSearchPage = () => {
                                                 </span>
                                                 <span style={styles.metaPill}>
                                                     📏{" "}
-                                                    {cinema.distance !== undefined && cinema.distance !== null
+                                                    {cinema.distance !== undefined &&
+                                                        cinema.distance !== null
                                                         ? `${Number(cinema.distance).toFixed(1)} km`
                                                         : "Distance unavailable"}
                                                 </span>
@@ -259,6 +283,15 @@ const styles = {
         border: "1px solid rgba(255,255,255,0.12)",
         backdropFilter: "blur(16px)",
         boxShadow: "0 20px 60px rgba(0,0,0,0.28)",
+    },
+    loggedInMessage: {
+        marginBottom: "14px",
+        padding: "12px 14px",
+        borderRadius: "14px",
+        background: "rgba(99,102,241,0.14)",
+        border: "1px solid rgba(99,102,241,0.22)",
+        color: "#ddd6fe",
+        fontSize: "0.95rem",
     },
     searchRow: {
         display: "flex",
@@ -469,4 +502,4 @@ const styles = {
     },
 };
 
-export default cinemaSearchPage;
+export default CinemaSearchPage;
