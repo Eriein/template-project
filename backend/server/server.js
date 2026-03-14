@@ -8,6 +8,7 @@ const getUserByIdRoute = require('./routes/userGetUserById')
 const dbConnection = require('./config/db.config')
 const editUser = require('./routes/userEditUser')
 const deleteUser = require('./routes/userDeleteAll')
+const movieGluRoutes = require("./routes/movieGluRoutes");
 //Import of completion time routes
 const completionTimeCreate = require('./routes/completionTimeCreate')
 const completionTimeRead = require('./routes/completionTimeRead')
@@ -40,6 +41,7 @@ app.use('/user', getAIReviews)
 app.use("/scores", getUserScore);
 app.use('/user', userSetZipCode);
 app.use('/user', userGetAllZipCodes);
+app.use("/movieglu", movieGluRoutes);
 
 
 app.listen(SERVER_PORT, (req, res) => {
