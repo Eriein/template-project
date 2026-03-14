@@ -15,6 +15,7 @@ import MbtaAlertsPage from "./components/pages/mbtaAlerts";
 import MbtaArrivalsPage from "./components/pages/mbtaArrivalsPage";
 import { createContext, useState, useEffect } from "react";
 import getUserInfo from "./utilities/decodeJwt";
+import CinemaSearchPage from "./components/pages/cinemaSearchPage";
 
 export const UserContext = createContext();
 //test change
@@ -38,7 +39,8 @@ const App = () => {
           <Route exact path="/mbtaAlerts" element={<MbtaAlertsPage />} />
           <Route exact path="/mbtaArrivalsPage" element={<MbtaArrivalsPage />} />
           <Route path="/privateUserProfile" element={<PrivateUserProfile />} />
-          
+          <Route path="/cinemas" element={<CinemaSearchPage />} />
+
         </Routes>
       </UserContext.Provider>
     </>
