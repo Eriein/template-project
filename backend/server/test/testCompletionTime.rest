@@ -14,13 +14,12 @@ GET http://localhost:8081/completion-times/getAll
 
 #3
 ### Update Completion Time
-PUT http://localhost:8081/completion-times/update/69a1ddcd0ed712fb16b534fb
+PUT http://localhost:8081/completion-times/update/69a8850fcff454b45e02c1ba
 Content-Type: application/json
 
 {
   "timeInSeconds": 45
 }
-
 #4
 ### Delete Completion Time
-DELETE http://localhost:8081/completion-times/delete/69a1ddcd0ed712fb16b534fb
+DELETE http://localhost:8081/completion-times/delete/69a8850fcff454b45e02c1ba
