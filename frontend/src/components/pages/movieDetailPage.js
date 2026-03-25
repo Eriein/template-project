@@ -7,6 +7,18 @@ import getUserInfo from '../../utilities/decodeJwt';
 
 const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_SERVER_URI || 'http://localhost:8081';
 
+// Extracts a readable message from an Axios error, with a fallback
+const parseApiError = (err, fallback) => {
+  const data = err.response?.data;
+  const message = data?.error || (typeof data === 'string' ? data : null);
+  const details = Array.isArray(data?.details) && data.details.length > 0
+    ? ` ${data.details.join(' ')}` : '';
+  return message ? `${message}${details}` : fallback;
+};
+
+// Checks if the server rejected the request due to rate limiting
+const isRateLimited = (err) => err.response?.status === 429;
+
 const MovieDetailPage = () => {
   const { imdbId } = useParams();
   const [movie, setMovie] = useState(null);
@@ -20,6 +32,7 @@ const MovieDetailPage = () => {
   const [aiReviewsLoading, setAiReviewsLoading] = useState(false);
   const [aiReviewsError, setAiReviewsError] = useState('');
   const [aiReviewDeletingId, setAiReviewDeletingId] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const userId = user?.id;
 
@@ -48,10 +61,7 @@ const MovieDetailPage = () => {
         }
       } catch (err) {
         if (cancelled) return;
-        const apiError = err.response?.data?.error;
-        const details = err.response?.data?.details;
-        const detailText = Array.isArray(details) && details.length > 0 ? ` ${details.join(' ')}` : '';
-        setError(apiError ? `${apiError}${detailText}` : 'Failed to load movie data.');
+        setError(parseApiError(err, 'Failed to load movie data.'));
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -103,8 +113,7 @@ const MovieDetailPage = () => {
           setAiReviews([]);
           return;
         }
-        const apiError = err.response?.data?.error || err.response?.data;
-        setAiReviewsError(apiError || 'Failed to load AI reviews.');
+        setAiReviewsError(parseApiError(err, 'Failed to load AI reviews.'));
       } finally {
         if (!cancelled) {
           setAiReviewsLoading(false);
@@ -124,6 +133,7 @@ const MovieDetailPage = () => {
 
     setAiReviewLoading(true);
     setAiReviewError('');
+    setDrawerOpen(true);
     try {
       const response = await axios.post(`${BACKEND_BASE_URL}/user/reviews`, {
         omdbId: imdbId,
@@ -132,12 +142,6 @@ const MovieDetailPage = () => {
 
       const payload = response.data || {};
       const reviewRecord = payload.review;
-      const reviewText = reviewRecord?.review || '';
-
-      if (reviewText.length < 50 || reviewText.length > 1000) {
-        setAiReviewError('Generated review failed the length check.');
-        return;
-      }
 
       setAiReview({ ...reviewRecord, cached: payload.cached });
 
@@ -146,13 +150,11 @@ const MovieDetailPage = () => {
       });
       setAiReviews(refreshed.data || []);
     } catch (err) {
-      const status = err.response?.status;
-      const apiError = err.response?.data?.error || err.response?.data;
-      if (status === 429) {
-        setAiReviewError(apiError || 'You have reached the limit. Please try again later.');
-      } else {
-        setAiReviewError(apiError || 'Failed to generate AI review.');
-      }
+      setAiReviewError(
+        isRateLimited(err)
+          ? parseApiError(err, 'You have reached the limit. Please try again later.')
+          : parseApiError(err, 'Failed to generate AI review.')
+      );
     } finally {
       setAiReviewLoading(false);
     }
@@ -165,6 +167,7 @@ const MovieDetailPage = () => {
 
     setAiReviewDeletingId(reviewId);
     setAiReviewsError('');
+    setAiReviewError('');
 
     try {
       await axios.delete(`${BACKEND_BASE_URL}/user/reviews/${reviewId}`, {
@@ -176,8 +179,7 @@ const MovieDetailPage = () => {
         setAiReview(null);
       }
     } catch (err) {
-      const apiError = err.response?.data?.error || err.response?.data;
-      setAiReviewsError(apiError || 'Failed to delete review.');
+      setAiReviewsError(parseApiError(err, 'Failed to delete review.'));
     } finally {
       setAiReviewDeletingId(null);
     }
@@ -290,64 +292,94 @@ const MovieDetailPage = () => {
           </div>
         )}
 
-        {!loading && !error && movie && (
-          <section className="movie-card movie-card--reviews">
-            <header className="movie-card__header">
-              <h2>My AI Reviews</h2>
-              <span className="movie-card__tag">History</span>
-            </header>
-            <div className="movie-card__content">
-              {aiReviewError && <p className="movie-card__empty">{aiReviewError}</p>}
-              {aiReviewsError && <p className="movie-card__empty">{aiReviewsError}</p>}
-
-              {aiReview && (
-                <div className="movie-ai-review">
-                  <div className="movie-ai-review__header">
-                    <h3>Latest AI Review</h3>
-                    <span className={`movie-ai-badge ${aiReview.cached ? 'is-cached' : 'is-new'}`}>
-                      {aiReview.cached ? 'Stored' : 'New'}
-                    </span>
-                  </div>
-                  <p>{aiReview.review}</p>
-                </div>
-              )}
-
-              {aiReviewsLoading && <p className="movie-card__empty">Loading your reviews...</p>}
-
-              {!aiReviewsLoading && aiReviews.length === 0 && (
-                <p className="movie-card__empty">No AI reviews yet.</p>
-              )}
-
-              {!aiReviewsLoading && aiReviews.length > 0 && (
-                <div className="movie-ai-list">
-                  {aiReviews.map((review) => (
-                    <div className="movie-ai-item" key={review._id}>
-                      <div className="movie-ai-item__header">
-                        <div className="movie-ai-item__meta">
-                          <span>{new Date(review.date).toLocaleDateString()}</span>
-                          <span className="movie-ai-item__dot" />
-                          <span>{review.omdbId}</span>
-                        </div>
-                        <div className="movie-ai-item__actions">
-                          <button
-                            className="movie-ai-delete"
-                            type="button"
-                            onClick={() => handleDeleteReview(review._id)}
-                            disabled={aiReviewDeletingId === review._id}
-                          >
-                            {aiReviewDeletingId === review._id ? 'Deleting...' : 'Delete'}
-                          </button>
-                        </div>
-                      </div>
-                      <p>{review.review}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
-        )}
       </Container>
+
+      {drawerOpen && (
+        <div className="ai-review-drawer-overlay" onClick={() => setDrawerOpen(false)} />
+      )}
+      <aside className={`ai-review-drawer${drawerOpen ? ' is-open' : ''}`}>
+        <div className="ai-review-drawer__header">
+          <h2>AI Review</h2>
+          <div className="ai-review-drawer__header-actions">
+            <button
+              className="movie-action-btn"
+              type="button"
+              onClick={handleGenerateReview}
+              disabled={!userId || aiReviewLoading || !imdbId}
+            >
+              {aiReviewLoading ? 'Thinking...' : 'Generate New'}
+            </button>
+            <button
+              className="ai-review-drawer__close"
+              type="button"
+              onClick={() => setDrawerOpen(false)}
+              aria-label="Close drawer"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+        <div className="ai-review-drawer__body">
+          {aiReviewError && (
+            <p className="ai-review-drawer__error">{aiReviewError}</p>
+          )}
+          {aiReviewsError && (
+            <p className="ai-review-drawer__error">{aiReviewsError}</p>
+          )}
+
+          {aiReviewLoading && (
+            <p className="movie-card__empty">AI is thinking...</p>
+          )}
+
+          {!aiReviewLoading && aiReview && (
+            <div className="movie-ai-review">
+              <div className="movie-ai-review__header">
+                <h3>Latest Review</h3>
+              </div>
+              <p>{aiReview.review}</p>
+            </div>
+          )}
+
+          <div className="ai-review-drawer__section-header">
+            <span>History</span>
+          </div>
+
+          {aiReviewsLoading && (
+            <p className="movie-card__empty">Loading your reviews...</p>
+          )}
+
+          {!aiReviewsLoading && aiReviews.length === 0 && (
+            <p className="movie-card__empty">No AI reviews yet.</p>
+          )}
+
+          {!aiReviewsLoading && aiReviews.length > 0 && (
+            <div className="movie-ai-list">
+              {aiReviews.map((review) => (
+                <div className="movie-ai-item" key={review._id}>
+                  <div className="movie-ai-item__header">
+                    <div className="movie-ai-item__meta">
+                      <span>{new Date(review.date).toLocaleDateString()}</span>
+                      <span className="movie-ai-item__dot" />
+                      <span>{review.omdbId}</span>
+                    </div>
+                    <div className="movie-ai-item__actions">
+                      <button
+                        className="movie-ai-delete"
+                        type="button"
+                        onClick={() => handleDeleteReview(review._id)}
+                        disabled={aiReviewDeletingId === review._id}
+                      >
+                        {aiReviewDeletingId === review._id ? 'Deleting...' : 'Delete'}
+                      </button>
+                    </div>
+                  </div>
+                  <p>{review.review}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </aside>
     </div>
   );
 };

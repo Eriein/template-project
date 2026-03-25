@@ -6,8 +6,8 @@ const AIReviewCache= new mongoose.Schema(
     review: {
         type: String,
         required: true,
-        min : 50,
-        max : 1000,
+        minlength: 50,
+        maxlength: 1000,
         label: "review"
     },
     omdbId: {
@@ -28,6 +28,7 @@ const AIReviewCache= new mongoose.Schema(
   { collection: "AIReviewCache" }
 );
 
-AIReviewCache.index({ userId: 1, omdbId: 1 }, { unique: true });
+// Index for fast lookup by user — no unique constraint so multiple reviews per movie are allowed
+AIReviewCache.index({ userId: 1 });
 
 module.exports = mongoose.model('AIReviewCache', AIReviewCache);
