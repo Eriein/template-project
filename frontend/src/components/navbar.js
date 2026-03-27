@@ -25,6 +25,7 @@ export default function Navbar() {
           <Nav.Link href="/privateUserProfile">Profile</Nav.Link>
           <Nav.Link href="/mbtaAlerts">MBTA Alerts</Nav.Link>
           <Nav.Link href="/mbtaArrivalsPage">MBTA Arrivals</Nav.Link>
+          <Nav.Link href="/gamePage">Game Page</Nav.Link>
         </Nav>
       </Container>
     </ReactNavbar>
