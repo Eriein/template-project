@@ -221,7 +221,6 @@ const MovieDetailPage = () => {
             <section className="movie-card movie-card--plot">
               <header className="movie-card__header">
                 <h2>Plot Summary</h2>
-                <span className="movie-card__tag">Public Access</span>
               </header>
               <div className="movie-card__content">
                 {hasPlot ? (

@@ -28,7 +28,7 @@ const extractGeminiText = (responseData) => {
   return parts.map((p) => p.text).join('').trim();
 };
 
-// enforces the 50–1000 character contract on any review text
+// enforces the 50–1000 character limit on any review text
 const isValidReviewLength = (text) => text.length >= 50 && text.length <= 1000;
 
 const buildPrompt = ({ title, plot, actors }) => {
@@ -109,7 +109,6 @@ router.post('/reviews', async (req, res) => {
       });
     }
 
-    // Decide review source (client-provided or AI generated)
     let finalReview = normalizedReview;
 
     if (finalReview) {
