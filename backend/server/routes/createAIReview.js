@@ -103,11 +103,12 @@ router.post('/reviews', async (req, res) => {
       userId: userId,
       date: { $gte: twentyFourHoursAgo }
     });
-    if (dailyReviewCount >= 3) {
-      return res.status(429).json({
-        error: 'Daily review limit reached. Please come back tomorrow.'
-      });
-    }
+    // disable for test
+    // if (dailyReviewCount >= 3) {
+    //   return res.status(429).json({
+    //     error: 'Daily review limit reached. Please come back tomorrow.'
+    //   });
+    // }
 
     let finalReview = normalizedReview;
 

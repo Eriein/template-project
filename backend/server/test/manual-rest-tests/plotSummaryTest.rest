@@ -1,16 +1,11 @@
-
-### Test Case: Get Plot Summary (by IMDb ID)
+### [GET] Plot summary by IMDb ID
 GET http://localhost:8081/movies/plot?imdbId=tt1375666
-Content-Type: application/json
 
-### Test Case: Missing IMDb ID (should return 400)
+### [GET] Missing imdbId → 400
 GET http://localhost:8081/movies/plot
-Content-Type: application/json
 
-### Test Case: Invalid IMDb ID Format (should return 400)
+### [GET] Invalid imdbId format → 400
 GET http://localhost:8081/movies/plot?imdbId=tt123
-Content-Type: application/json
 
-### Test Case: Unknown IMDb ID (likely 404)
+### [GET] Unknown imdbId → 404
 GET http://localhost:8081/movies/plot?imdbId=tt0000000
-Content-Type: application/json
