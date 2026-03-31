@@ -1,0 +1,11 @@
+### [GET] Plot summary by IMDb ID
+GET http://localhost:8081/movies/plot?imdbId=tt1375666
+
+### [GET] Missing imdbId → 400
+GET http://localhost:8081/movies/plot
+
+### [GET] Invalid imdbId format → 400
+GET http://localhost:8081/movies/plot?imdbId=tt123
+
+### [GET] Unknown imdbId → 404
+GET http://localhost:8081/movies/plot?imdbId=tt0000000

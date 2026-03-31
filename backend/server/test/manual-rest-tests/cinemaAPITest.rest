@@ -1,0 +1,33 @@
+### User Signup
+POST http://localhost:8081/user/signup
+Content-Type: application/json
+
+{
+  "username": "testuser123",
+  "email": "test123@email.com",
+  "password": "12345678",
+  "zipCode": "01970"
+}
+
+###
+
+### User Login
+POST http://localhost:8081/user/login
+Content-Type: application/json
+
+{
+  "username": "testuser123",
+  "password": "12345678"
+}
+
+###
+
+### Search Nearby Cinemas
+GET http://localhost:8081/movieglu/nearby?zip=01970
+
+###
+
+### Get Movies for Cinema
+GET http://localhost:8081/movieglu/cinema/10636
+
+###

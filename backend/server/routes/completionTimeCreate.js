@@ -14,7 +14,8 @@ router.post("/create", async (req, res) => {
             user,
             timeInSeconds,
         });
-
+        // could have missing fields error handling 400 bad request.
+        // could return a better error status code than 500
         res.status(201).json(newTime);
     } catch (error) {
         res.status(500).json({ message: error.message });

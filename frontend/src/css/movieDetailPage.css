@@ -1,0 +1,542 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap");
+
+.movie-detail-page {
+  background: radial-gradient(circle at top, #1f0f12 0%, #0e090b 55%, #060405 100%);
+  color: #f5f1f2;
+  min-height: 100vh;
+}
+
+.movie-hero {
+  position: relative;
+  min-height: 420px;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(236, 19, 37, 0.2);
+}
+
+.movie-hero__bg {
+  position: absolute;
+  inset: 0;
+  background-color: #241013;
+  background-size: cover;
+  background-position: center;
+  filter: saturate(0.8);
+}
+
+.movie-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(6, 4, 5, 0.94) 20%, rgba(6, 4, 5, 0.7) 55%, rgba(6, 4, 5, 0.35) 100%);
+}
+
+.movie-hero__content {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(160px, 220px) minmax(0, 1fr);
+  gap: 32px;
+  align-items: end;
+  padding: 72px 24px 56px;
+  z-index: 1;
+}
+
+.movie-hero__poster {
+  border-radius: 18px;
+  background: #1d0d10;
+  border: 2px solid rgba(236, 19, 37, 0.35);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.movie-hero__poster img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.movie-hero__poster-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  padding: 24px;
+  background: linear-gradient(140deg, rgba(236, 19, 37, 0.2), rgba(20, 12, 14, 0.7));
+  color: rgba(245, 241, 242, 0.8);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.movie-hero__info h1 {
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(2.2rem, 3vw, 3.4rem);
+  margin: 12px 0 12px;
+  letter-spacing: -0.02em;
+}
+
+.movie-hero__subtitle {
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 1.05rem;
+  color: rgba(245, 241, 242, 0.7);
+  max-width: 520px;
+  margin-bottom: 20px;
+}
+
+.movie-hero__actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.movie-action-btn {
+  border: 1px solid rgba(236, 19, 37, 0.4);
+  background: rgba(236, 19, 37, 0.18);
+  color: #f7d7da;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.movie-action-btn:not(:disabled) {
+  cursor: pointer;
+  opacity: 1;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.movie-action-btn:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(236, 19, 37, 0.2);
+}
+
+.movie-hero__chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.movie-chip {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(245, 241, 242, 0.2);
+  background: rgba(20, 10, 12, 0.6);
+}
+
+.movie-chip--accent {
+  border-color: rgba(236, 19, 37, 0.6);
+  color: #f7d7da;
+  background: rgba(236, 19, 37, 0.18);
+}
+
+.movie-hero__meta {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  font-size: 0.85rem;
+  color: rgba(245, 241, 242, 0.6);
+}
+
+.movie-hero__dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(245, 241, 242, 0.5);
+}
+
+.movie-detail-body {
+  padding: 40px 24px 80px;
+}
+
+.movie-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 28px;
+}
+
+.movie-card {
+  background: rgba(20, 10, 12, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  box-shadow: 0 18px 35px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.movie-card__header {
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(13, 7, 9, 0.7);
+}
+
+.movie-card__header h2 {
+  font-family: "Outfit", sans-serif;
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.movie-card__tag {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #ec1325;
+  background: rgba(236, 19, 37, 0.15);
+  border: 1px solid rgba(236, 19, 37, 0.35);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.movie-card__content {
+  padding: 26px 24px 30px;
+  font-family: "Source Sans 3", sans-serif;
+  color: rgba(245, 241, 242, 0.85);
+  display: grid;
+  gap: 22px;
+}
+
+.movie-plot-block {
+  border-left: 2px solid rgba(236, 19, 37, 0.35);
+  padding-left: 16px;
+}
+
+.movie-plot-block h3 {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin: 0 0 10px;
+  color: #ec1325;
+}
+
+.movie-plot-block p {
+  margin: 0;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.movie-card__empty {
+  margin: 0;
+  color: rgba(245, 241, 242, 0.6);
+}
+
+.movie-cast-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.movie-cast-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+  align-items: flex-start;
+}
+
+.movie-cast-helper {
+  font-size: 0.85rem;
+  color: rgba(245, 241, 242, 0.6);
+}
+
+.movie-cast-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 8, 10, 0.65);
+}
+
+.movie-cast-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(236, 19, 37, 0.2);
+  color: #f7d7da;
+  display: grid;
+  place-items: center;
+  font-weight: 600;
+  font-family: "Outfit", sans-serif;
+}
+
+.movie-cast-name {
+  font-size: 0.95rem;
+}
+
+.movie-cast-footer {
+  margin-top: 12px;
+  color: rgba(245, 241, 242, 0.6);
+}
+
+.movie-card--reviews {
+  margin-top: 28px;
+}
+
+.movie-ai-review {
+  border: 1px solid rgba(236, 19, 37, 0.25);
+  border-radius: 14px;
+  padding: 18px;
+  background: rgba(20, 8, 11, 0.7);
+}
+
+.movie-ai-review__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.movie-ai-review__header h3 {
+  margin: 0;
+  font-family: "Outfit", sans-serif;
+  font-size: 1rem;
+}
+
+.movie-ai-badge {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+
+.movie-ai-badge.is-new {
+  color: #0f2c1d;
+  background: rgba(72, 204, 132, 0.2);
+  border-color: rgba(72, 204, 132, 0.4);
+}
+
+.movie-ai-badge.is-cached {
+  color: #f7d7da;
+  background: rgba(236, 19, 37, 0.18);
+  border-color: rgba(236, 19, 37, 0.4);
+}
+
+.movie-ai-list {
+  display: grid;
+  gap: 16px;
+}
+
+.movie-ai-item {
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(12, 6, 8, 0.6);
+}
+
+.movie-ai-item__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.movie-ai-item__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(245, 241, 242, 0.55);
+  margin-bottom: 0;
+}
+
+.movie-ai-item__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.movie-ai-delete {
+  border: 1px solid rgba(236, 19, 37, 0.5);
+  background: transparent;
+  color: #f7d7da;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.movie-ai-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.movie-ai-delete:not(:disabled):hover {
+  background: rgba(236, 19, 37, 0.15);
+}
+
+.movie-ai-item__dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(245, 241, 242, 0.4);
+}
+
+@media (max-width: 992px) {
+  .movie-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .movie-hero__content {
+    grid-template-columns: 1fr;
+    padding-top: 56px;
+  }
+
+  .movie-hero__poster {
+    max-width: 200px;
+  }
+}
+
+/* AI Review Drawer */
+
+.ai-review-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.ai-review-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 560px;
+  max-width: 92vw;
+  background: #120709;
+  border-left: 1px solid rgba(236, 19, 37, 0.25);
+  box-shadow: -16px 0 48px rgba(0, 0, 0, 0.6);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ai-review-drawer.is-open {
+  transform: translateX(0);
+}
+
+.ai-review-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(13, 7, 9, 0.8);
+  flex-shrink: 0;
+}
+
+.ai-review-drawer__header h2 {
+  font-family: "Outfit", sans-serif;
+  font-size: 1.15rem;
+  margin: 0;
+  color: #f5f1f2;
+}
+
+.ai-review-drawer__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ai-review-drawer__header-actions .movie-action-btn {
+  padding: 7px 14px;
+  font-size: 0.8rem;
+}
+
+.ai-review-drawer__close {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(245, 241, 242, 0.7);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.ai-review-drawer__close:hover {
+  background: rgba(236, 19, 37, 0.2);
+  color: #f7d7da;
+  border-color: rgba(236, 19, 37, 0.5);
+}
+
+.ai-review-drawer__body {
+  padding: 28px 24px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  font-family: "Source Sans 3", sans-serif;
+}
+
+.ai-review-drawer__meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ai-review-drawer__date {
+  font-size: 0.8rem;
+  color: rgba(245, 241, 242, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ai-review-drawer__text {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(245, 241, 242, 0.9);
+}
+
+.ai-review-drawer__film {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: rgba(245, 241, 242, 0.6);
+}
+
+.ai-review-drawer__label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #ec1325;
+  display: block;
+}
+
+.ai-review-drawer__error {
+  margin: 0;
+  color: #f7d7da;
+  background: rgba(236, 19, 37, 0.15);
+  border: 1px solid rgba(236, 19, 37, 0.3);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 0.9rem;
+}
+
+.ai-review-drawer__section-header {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(245, 241, 242, 0.4);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding-top: 18px;
+}

@@ -16,9 +16,11 @@ const completionTimeUpdate = require('./routes/completionTimeUpdate')
 const completionTimeDelete = require('./routes/completionTimeDelete')
 const createAIReview = require('./routes/createAIReview');
 const getAIReviews = require('./routes/getAIReviews');
+const deleteAIReview = require('./routes/deleteAIReview');
 const getUserScore = require("./routes/getUserScore");
 const userSetZipCode = require("./routes/userSetZipCode");
 const userGetAllZipCodes = require("./routes/userGetAllZipCodes");
+const plotSummaryRoute = require('./routes/plotSummary');
 
 require('dotenv').config();
 const SERVER_PORT = 8081
@@ -38,10 +40,13 @@ app.use('/completion-times', completionTimeUpdate)
 app.use('/completion-times', completionTimeDelete)
 app.use('/user', createAIReview)
 app.use('/user', getAIReviews)
+app.use('/user', deleteAIReview)
 app.use("/scores", getUserScore);
 app.use('/user', userSetZipCode);
 app.use('/user', userGetAllZipCodes);
 app.use("/movieglu", movieGluRoutes);
+
+app.use('/movies', plotSummaryRoute);
 
 
 app.listen(SERVER_PORT, (req, res) => {

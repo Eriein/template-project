@@ -1,23 +1,65 @@
-### Test Case: Create a New Review
+### [CREATE] Manual review text
 POST http://localhost:8081/user/reviews
 Content-Type: application/json
 
 {
-  "review": "NEW AI REVIEW is widely considered one of the best superhero movies ever made. It focuses on Peter Parker (Tobey Maguire) struggling to balance his \"normal\" life with being a hero. The Story: Peter is failing classes, losing his job, and struggling to stay friends with Mary Jane. At the same time, he has to fight Doctor Octopus, a scientist whose mechanical arms have taken over his mind. The Themes: The movie is about sacrifice. It shows that being a hero isn't always fun—it actually makes Peter’s life very difficult. The Action: The fight on top of the moving train is still famous today for being one of the best action scenes in cinema history.",
-  "omdbId": "tt12355",
+  "review": "Spider-Man 2 is a rare superhero sequel that surpasses its predecessor. The train fight with Doctor Octopus remains one of cinema's finest action sequences, and Tobey Maguire brings real emotional weight to Peter Parker's internal conflict.",
+  "omdbId": "tt0316654",
   "userId": "697a39e7bb361ffd9cdb8bbf"
 }
 
-### Test Case: Cache Hit (same user + movie returns existing review)
+### [CREATE] AI-generated review (server calls Gemini)
 POST http://localhost:8081/user/reviews
 Content-Type: application/json
 
 {
-  "review": "This text is intentionally different, but for the same user and movie the API should return the cached record instead of creating a new one.",
-  "omdbId": "tt12322",
+  "omdbId": "tt0316654",
   "userId": "697a39e7bb361ffd9cdb8bbf"
 }
 
-### Test Case: List All Reviews for a Specific User
+### [CREATE] Missing omdbId → 400
+POST http://localhost:8081/user/reviews
+Content-Type: application/json
+
+{
+  "review": "A long enough review to pass the 50-character minimum length check.",
+  "userId": "697a39e7bb361ffd9cdb8bbf"
+}
+
+### [CREATE] Invalid userId → 400
+POST http://localhost:8081/user/reviews
+Content-Type: application/json
+
+{
+  "review": "A long enough review to pass the 50-character minimum length check.",
+  "omdbId": "tt0316654",
+  "userId": "bad-id"
+}
+
+### [CREATE] Review too short → 400
+POST http://localhost:8081/user/reviews
+Content-Type: application/json
+
+{
+  "review": "Too short.",
+  "omdbId": "tt0316654",
+  "userId": "697a39e7bb361ffd9cdb8bbf"
+}
+
+### [LIST] All reviews for a user
 GET http://localhost:8081/user/reviews?userId=697a39e7bb361ffd9cdb8bbf
-Content-Type: application/json
+
+### [LIST] Missing userId → 400
+GET http://localhost:8081/user/reviews
+
+### [LIST] Invalid userId → 400
+GET http://localhost:8081/user/reviews?userId=not-an-object-id
+
+### [DELETE] Delete a review (replace REVIEW_ID_HERE with a real _id)
+DELETE http://localhost:8081/user/reviews/69c6a80677e7e5965deca23f?userId=697a39e7bb361ffd9cdb8bbf
+
+### [DELETE] Invalid reviewId → 400
+DELETE http://localhost:8081/user/reviews/not-an-id?userId=697a39e7bb361ffd9cdb8bbf
+
+### [DELETE] Wrong userId → 404
+DELETE http://localhost:8081/user/reviews/REVIEW_ID_HERE?userId=000000000000000000000000
