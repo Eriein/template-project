@@ -1,0 +1,139 @@
+### Flashcard API - Manual Tests
+### Requires REST Client extension in VS Code
+
+@baseUrl = http://localhost:8081
+
+# ─────────────────────────────────────────
+# GET ALL FLASHCARDS
+# ─────────────────────────────────────────
+
+### Get all flashcards
+GET {{baseUrl}}/flashcards
+Content-Type: application/json
+
+### Get flashcard by id (exists)
+GET {{baseUrl}}/flashcards/1
+Content-Type: application/json
+
+### Get flashcard by id (does not exist — expect 404)
+GET {{baseUrl}}/flashcards/999
+Content-Type: application/json
+
+# ─────────────────────────────────────────
+# CREATE FLASHCARDS (POST)
+# ─────────────────────────────────────────
+
+### Create flashcard 1
+POST {{baseUrl}}/flashcards
+Content-Type: application/json
+
+{
+  "id": 1,
+  "title": "Photosynthesis",
+  "description": "The process by which plants convert sunlight into food using CO2 and water."
+}
+
+### Create flashcard 2
+POST {{baseUrl}}/flashcards
+Content-Type: application/json
+
+{
+  "id": 2,
+  "title": "Mitosis",
+  "description": "A type of cell division resulting in two daughter cells with the same number of chromosomes."
+}
+
+### Create flashcard 3
+POST {{baseUrl}}/flashcards
+Content-Type: application/json
+
+{
+  "id": 3,
+  "title": "Osmosis",
+  "description": "The movement of water molecules through a semi-permeable membrane from low to high solute concentration."
+}
+
+### Create flashcard 4
+POST {{baseUrl}}/flashcards
+Content-Type: application/json
+
+{
+  "id": 4,
+  "title": "DNA",
+  "description": "A molecule that carries the genetic instructions for the development and function of living organisms."
+}
+
+### Create flashcard 5
+POST {{baseUrl}}/flashcards
+Content-Type: application/json
+
+{
+  "id": 5,
+  "title": "Natural Selection",
+  "description": "The process where organisms with favorable traits are more likely to survive and reproduce."
+}
+
+### Create flashcard — missing title (expect 400)
+POST {{baseUrl}}/flashcards
+Content-Type: application/json
+
+{
+  "id": 6,
+  "description": "This should fail because title is missing."
+}
+
+### Create flashcard — duplicate id (expect 400)
+POST {{baseUrl}}/flashcards
+Content-Type: application/json
+
+{
+  "id": 1,
+  "title": "Duplicate",
+  "description": "This should fail because id 1 already exists."
+}
+
+# ─────────────────────────────────────────
+# UPDATE FLASHCARD (PUT)
+# ─────────────────────────────────────────
+
+### Update flashcard 1 — change title and description
+PUT {{baseUrl}}/flashcards/1
+Content-Type: application/json
+
+{
+  "title": "Photosynthesis (Updated)",
+  "description": "Updated: Plants use sunlight, water, and CO2 to produce glucose and oxygen."
+}
+
+### Update flashcard — id does not exist (expect 404)
+PUT {{baseUrl}}/flashcards/999
+Content-Type: application/json
+
+{
+  "title": "Ghost Card",
+  "description": "This should return a 404."
+}
+
+# ─────────────────────────────────────────
+# DELETE FLASHCARD
+# ─────────────────────────────────────────
+
+### Delete flashcard 5
+DELETE {{baseUrl}}/flashcards/5
+Content-Type: application/json
+
+### Delete flashcard — id does not exist (expect 404)
+DELETE {{baseUrl}}/flashcards/999
+Content-Type: application/json
+
+# ─────────────────────────────────────────
+# SUGGESTED TEST ORDER FOR A CLEAN RUN
+# ─────────────────────────────────────────
+# 1. POST flashcards 1–5     (seed the database)
+# 2. GET all flashcards      (confirm all 5 exist)
+# 3. GET flashcard 1         (confirm single fetch)
+# 4. PUT flashcard 1         (confirm update)
+# 5. GET flashcard 1         (confirm update was saved)
+# 6. DELETE flashcard 5      (confirm delete)
+# 7. GET all flashcards      (confirm only 4 remain)
+# 8. Run error cases         (404s, 400s)

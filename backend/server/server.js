@@ -8,6 +8,7 @@ const getUserByIdRoute = require('./routes/userGetUserById')
 const dbConnection = require('./config/db.config')
 const editUser = require('./routes/userEditUser')
 const deleteUser = require('./routes/userDeleteAll')
+const flashcardRoutes = require('./routes/flashcards');
 //Import of completion time routes
 const completionTimeCreate = require('./routes/completionTimeCreate')
 const completionTimeRead = require('./routes/completionTimeRead')
@@ -33,6 +34,7 @@ app.use('/user', editUser)
 app.use('/user', deleteUser)
 app.use(require("./routes/userSetZipCode"));
 app.use(require("./routes/userGetAllZipCodes"));
+app.use('/flashcards', flashcardRoutes);
 //app.use for completion time
 app.use('/completion-times', completionTimeCreate)
 app.use('/completion-times', completionTimeRead)
