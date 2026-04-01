@@ -7,3 +7,5 @@ CLAUDE.md
 context*
 .mcp.json
 .claude
+.agents
+skills-lock.json
