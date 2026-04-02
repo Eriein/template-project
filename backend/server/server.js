@@ -1,3 +1,7 @@
+require('dotenv').config();
+const SERVER_PORT = 8081
+
+
 const express = require("express");
 const app = express();
 const cors = require('cors')
@@ -9,6 +13,7 @@ const dbConnection = require('./config/db.config')
 const editUser = require('./routes/userEditUser')
 const deleteUser = require('./routes/userDeleteAll')
 const movieGluRoutes = require("./routes/movieGluRoutes");
+const flashcardRouter = require("./routes/flashcardRoute");
 //Import of completion time routes
 const completionTimeCreate = require('./routes/completionTimeCreate')
 const completionTimeRead = require('./routes/completionTimeRead')
@@ -22,8 +27,7 @@ const userSetZipCode = require("./routes/userSetZipCode");
 const userGetAllZipCodes = require("./routes/userGetAllZipCodes");
 const plotSummaryRoute = require('./routes/plotSummary');
 
-require('dotenv').config();
-const SERVER_PORT = 8081
+
 
 dbConnection()
 app.use(cors({ origin: '*' }))
@@ -45,6 +49,7 @@ app.use("/scores", getUserScore);
 app.use('/user', userSetZipCode);
 app.use('/user', userGetAllZipCodes);
 app.use("/movieglu", movieGluRoutes);
+app.use("/api/flashcards", flashcardRouter);
 
 app.use('/movies', plotSummaryRoute);
 

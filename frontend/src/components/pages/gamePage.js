@@ -4,13 +4,9 @@ import React, { useEffect, useState, useRef } from "react";
  * FUTURE API PLACEHOLDER
  ***********************/
 async function fetchFlashcards() {
-  return [
-    { id: 1, title: "Title TBD 1", description: "Description TBD 1" },
-    { id: 2, title: "Title TBD 2", description: "Description TBD 2" },
-    { id: 3, title: "Title TBD 3", description: "Description TBD 3" },
-    { id: 4, title: "Title TBD 4", description: "Description TBD 4" },
-    { id: 5, title: "Title TBD 5", description: "Description TBD 5" }
-  ];
+  const response = await fetch("http://localhost:8081/api/flashcards");
+  const data = await response.json();
+  return data;
 }
 
 const GamePage = () => {
@@ -74,10 +70,10 @@ const GamePage = () => {
       prev.map((card) =>
         card.key === dragItem.current
           ? {
-              ...card,
-              x: e.clientX - offset.current.x,
-              y: e.clientY - offset.current.y
-            }
+            ...card,
+            x: e.clientX - offset.current.x,
+            y: e.clientY - offset.current.y
+          }
           : card
       )
     );
