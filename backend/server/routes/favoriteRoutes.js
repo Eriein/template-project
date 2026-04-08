@@ -33,4 +33,34 @@ router.get('/:userId', async (req, res) => {
     }
 });
 
+router.delete('/:userId/:cinemaId', async (req, res) => {
+    try {
+        const { userId, cinemaId } = req.params;
+
+        // 🔍 查找并删除
+        const deleted = await Favorite.findOneAndDelete({
+            userId: userId,
+            cinemaId: cinemaId
+        });
+
+        // ❗ 如果没找到
+        if (!deleted) {
+            return res.status(404).json({
+                error: "Favorite not found"
+            });
+        }
+
+        res.status(200).json({
+            message: "Removed from favorites",
+            deleted: deleted
+        });
+
+    } catch (err) {
+        console.error("Delete favorite error:", err);
+        res.status(500).json({
+            error: "Failed to delete favorite"
+        });
+    }
+});
+
 module.exports = router;

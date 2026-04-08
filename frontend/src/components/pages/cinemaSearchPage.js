@@ -164,6 +164,67 @@ const injectStyles = () => {
             background: linear-gradient(90deg, transparent, rgba(255,220,80,0.4), transparent);
             margin: 0; border: none;
         }
+
+        /* Favourites drawer */
+        @keyframes drawerIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to   { transform: translateX(0);    opacity: 1; }
+        }
+        @keyframes drawerOut {
+            from { transform: translateX(0);    opacity: 1; }
+            to   { transform: translateX(100%); opacity: 0; }
+        }
+        @keyframes overlayIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        .fav-drawer {
+            animation: drawerIn 0.38s cubic-bezier(.22,.68,0,1.1) forwards;
+        }
+        .fav-drawer.closing {
+            animation: drawerOut 0.3s ease forwards;
+        }
+        .fav-overlay {
+            animation: overlayIn 0.3s ease forwards;
+        }
+        .fav-entry-btn {
+            transition: all 0.22s ease !important;
+        }
+        .fav-entry-btn:hover {
+            border-color: rgba(255,80,100,0.5) !important;
+            background: rgba(255,80,100,0.1) !important;
+            transform: scale(1.04);
+        }
+        .fav-entry-btn.has-favs {
+            border-color: rgba(255,80,100,0.35) !important;
+            background: rgba(255,80,100,0.08) !important;
+        }
+        .drawer-cinema-row {
+            transition: background 0.2s ease, border-color 0.2s ease;
+            cursor: pointer;
+        }
+        .drawer-cinema-row:hover {
+            background: rgba(255,220,80,0.06) !important;
+            border-color: rgba(255,220,80,0.2) !important;
+        }
+        .drawer-remove-btn {
+            transition: all 0.18s ease;
+            opacity: 0;
+        }
+        .drawer-cinema-row:hover .drawer-remove-btn {
+            opacity: 1 !important;
+        }
+        .drawer-remove-btn:hover {
+            background: rgba(255,80,100,0.2) !important;
+            color: #ff6b6b !important;
+        }
+        @keyframes rowFadeIn {
+            from { opacity: 0; transform: translateX(12px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        .drawer-row-anim {
+            animation: rowFadeIn 0.3s ease both;
+        }
     `;
     document.head.appendChild(style);
 };
@@ -207,7 +268,363 @@ const Ticker = () => {
     );
 };
 
-/* ─── Main Component ─────────────────────────────────────────────── */
+/* ─── Favourites Drawer ──────────────────────────────────────────── */
+const FavouritesDrawer = ({ onClose, onNavigate }) => {
+    const [favs, setFavs] = useState([]);
+    const [closing, setClosing] = useState(false);
+
+    const user =
+        JSON.parse(localStorage.getItem("user")) ||
+        JSON.parse(localStorage.getItem("userInfo")) ||
+        {};
+
+    const currentUserId = user?.id || user?._id || user?.userId || "user12345";
+
+    useEffect(() => {
+        const fetchFavorites = async () => {
+            try {
+                const response = await fetch(`${BACKEND_URL}/favorites/${currentUserId}`);
+                if (!response.ok) return;
+
+                const data = await response.json();
+
+                const mapped = Array.isArray(data)
+                    ? data.map((item) => ({
+                        id: item.cinemaId,
+                        name: item.cinemaName,
+                        address: item.address || "",
+                    }))
+                    : [];
+
+                setFavs(mapped);
+            } catch (err) {
+                console.error("Fetch favorites error:", err);
+            }
+        };
+
+        fetchFavorites();
+    }, [currentUserId]);
+
+    const handleClose = () => {
+        setClosing(true);
+        setTimeout(onClose, 300);
+    };
+
+    const handleRemove = async (e, id) => {
+        e.stopPropagation();
+
+        try {
+            const response = await fetch(
+                `${BACKEND_URL}/favorites/${currentUserId}/${id}`,
+                {
+                    method: "DELETE",
+                }
+            );
+
+            if (!response.ok) {
+                const data = await response.json().catch(() => ({}));
+                throw new Error(data.error || "Failed to remove favorite");
+            }
+
+            setFavs((prev) => prev.filter((f) => String(f.id) !== String(id)));
+        } catch (err) {
+            console.error("Remove favorite error:", err);
+            alert(err.message || "Failed to remove favorite");
+        }
+    };
+
+    const handleGo = (cinema) => {
+        handleClose();
+        setTimeout(() => onNavigate(cinema.id, cinema.name), 320);
+    };
+
+    return (
+        <>
+            <div
+                className="fav-overlay"
+                onClick={handleClose}
+                style={{
+                    position: "fixed",
+                    inset: 0,
+                    background: "rgba(0,0,0,0.55)",
+                    backdropFilter: "blur(4px)",
+                    zIndex: 3000,
+                }}
+            />
+
+            <div
+                className={`fav-drawer${closing ? " closing" : ""}`}
+                style={{
+                    position: "fixed",
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    width: "min(420px, 92vw)",
+                    background: "#0e0e1a",
+                    borderLeft: "1px solid rgba(255,255,255,0.08)",
+                    zIndex: 3001,
+                    display: "flex",
+                    flexDirection: "column",
+                    boxShadow: "-24px 0 80px rgba(0,0,0,0.6)",
+                }}
+            >
+                <div
+                    style={{
+                        padding: "24px 24px 20px",
+                        borderBottom: "1px solid rgba(255,255,255,0.07)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                    }}
+                >
+                    <div>
+                        <div
+                            style={{
+                                fontSize: 10,
+                                fontWeight: 700,
+                                letterSpacing: "3px",
+                                color: "rgba(255,80,100,0.7)",
+                                marginBottom: 6,
+                            }}
+                        >
+                            MY COLLECTION
+                        </div>
+                        <h2
+                            style={{
+                                margin: 0,
+                                fontFamily: "'Bebas Neue', sans-serif",
+                                fontSize: "1.9rem",
+                                letterSpacing: "2px",
+                                color: "#fff",
+                            }}
+                        >
+                            Saved Cinemas
+                        </h2>
+                    </div>
+
+                    <button
+                        onClick={handleClose}
+                        style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: 8,
+                            border: "1px solid rgba(255,255,255,0.1)",
+                            background: "rgba(255,255,255,0.05)",
+                            color: "rgba(255,255,255,0.6)",
+                            cursor: "pointer",
+                            fontSize: 18,
+                            lineHeight: 1,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontFamily: "'DM Sans', sans-serif",
+                            transition: "all 0.2s ease",
+                        }}
+                    >
+                        ✕
+                    </button>
+                </div>
+
+                <div
+                    style={{
+                        padding: "10px 24px",
+                        borderBottom: "1px solid rgba(255,255,255,0.05)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                    }}
+                >
+                    <span
+                        style={{
+                            width: 28,
+                            height: 28,
+                            borderRadius: 6,
+                            background:
+                                favs.length > 0
+                                    ? "rgba(255,80,100,0.12)"
+                                    : "rgba(255,255,255,0.05)",
+                            border: `1px solid ${favs.length > 0
+                                ? "rgba(255,80,100,0.3)"
+                                : "rgba(255,255,255,0.08)"
+                                }`,
+                            color:
+                                favs.length > 0
+                                    ? "#ff6b6b"
+                                    : "rgba(255,255,255,0.3)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 12,
+                            fontWeight: 800,
+                        }}
+                    >
+                        {favs.length}
+                    </span>
+                    <span
+                        style={{
+                            fontSize: 12,
+                            color: "rgba(255,255,255,0.35)",
+                            letterSpacing: "0.3px",
+                        }}
+                    >
+                        {favs.length === 1 ? "cinema saved" : "cinemas saved"}
+                    </span>
+                </div>
+
+                <div style={{ flex: 1, overflowY: "auto", padding: "16px 16px" }}>
+                    {favs.length === 0 ? (
+                        <div style={{ textAlign: "center", padding: "60px 20px" }}>
+                            <div style={{ fontSize: "2.8rem", marginBottom: 14, opacity: 0.4 }}>
+                                ❤️
+                            </div>
+                            <p
+                                style={{
+                                    fontFamily: "'Bebas Neue', sans-serif",
+                                    fontSize: "1.4rem",
+                                    letterSpacing: "2px",
+                                    color: "rgba(255,255,255,0.35)",
+                                    margin: "0 0 8px",
+                                }}
+                            >
+                                No Saved Cinemas
+                            </p>
+                            <p
+                                style={{
+                                    fontSize: 13,
+                                    color: "rgba(255,255,255,0.25)",
+                                    lineHeight: 1.7,
+                                    margin: 0,
+                                }}
+                            >
+                                Browse cinemas and tap the ❤️ button to save your favourites here.
+                            </p>
+                        </div>
+                    ) : (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                            {favs.map((cinema, idx) => (
+                                <div
+                                    key={cinema.id}
+                                    className="drawer-cinema-row drawer-row-anim"
+                                    onClick={() => handleGo(cinema)}
+                                    style={{
+                                        position: "relative",
+                                        padding: "14px 16px",
+                                        borderRadius: 12,
+                                        border: "1px solid rgba(255,255,255,0.07)",
+                                        background: "rgba(255,255,255,0.03)",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 14,
+                                        animationDelay: `${idx * 0.06}s`,
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            width: 36,
+                                            height: 36,
+                                            borderRadius: 8,
+                                            flexShrink: 0,
+                                            background: "rgba(255,80,100,0.1)",
+                                            border: "1px solid rgba(255,80,100,0.2)",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            fontSize: 15,
+                                        }}
+                                    >
+                                        ❤️
+                                    </div>
+
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div
+                                            style={{
+                                                fontSize: "0.95rem",
+                                                fontWeight: 700,
+                                                color: "#f0ece0",
+                                                marginBottom: 3,
+                                                whiteSpace: "nowrap",
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                            }}
+                                        >
+                                            {cinema.name}
+                                        </div>
+                                        <div
+                                            style={{
+                                                fontSize: 11,
+                                                color: "rgba(255,255,255,0.3)",
+                                                letterSpacing: "1px",
+                                            }}
+                                        >
+                                            ID: {cinema.id}
+                                        </div>
+                                    </div>
+
+                                    <span
+                                        style={{
+                                            fontSize: 13,
+                                            color: "rgba(255,220,80,0.5)",
+                                            flexShrink: 0,
+                                        }}
+                                    >
+                                        →
+                                    </span>
+
+                                    <button
+                                        className="drawer-remove-btn"
+                                        onClick={(e) => handleRemove(e, cinema.id)}
+                                        title="Remove from favourites"
+                                        style={{
+                                            position: "absolute",
+                                            top: 8,
+                                            right: 8,
+                                            width: 22,
+                                            height: 22,
+                                            borderRadius: 4,
+                                            border: "none",
+                                            background: "rgba(255,255,255,0.07)",
+                                            color: "rgba(255,255,255,0.4)",
+                                            cursor: "pointer",
+                                            fontSize: 11,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            fontFamily: "'DM Sans', sans-serif",
+                                        }}
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                <div
+                    style={{
+                        padding: "16px 24px",
+                        borderTop: "1px solid rgba(255,255,255,0.06)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                    }}
+                >
+                    <span
+                        style={{
+                            fontSize: 11,
+                            color: "rgba(255,255,255,0.2)",
+                            letterSpacing: "0.3px",
+                        }}
+                    >
+                        ✦ Tap a cinema to view its listings
+                    </span>
+                </div>
+            </div>
+        </>
+    );
+};
+
+
 const CinemaSearchPage = () => {
     const navigate = useNavigate();
 
@@ -218,6 +635,15 @@ const CinemaSearchPage = () => {
     const [error, setError] = useState("");
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
+    const [showFavDrawer, setShowFavDrawer] = useState(false);
+    const [favCount, setFavCount] = useState(0);
+
+    const user =
+        JSON.parse(localStorage.getItem("user")) ||
+        JSON.parse(localStorage.getItem("userInfo")) ||
+        {};
+
+    const currentUserId = user?.id || user?._id || user?.userId || "user12345";
 
     const searchCinemas = async (zip) => {
         if (!zip || !zip.trim()) { setError("Please enter a ZIP Code."); return; }
@@ -239,6 +665,7 @@ const CinemaSearchPage = () => {
     useEffect(() => {
         injectStyles();
         setTimeout(() => setPageLoaded(true), 60);
+
         const savedToken = localStorage.getItem("accessToken");
         const savedZipCode = localStorage.getItem("zipCode");
         if (savedToken && savedZipCode) {
@@ -246,13 +673,40 @@ const CinemaSearchPage = () => {
             setZipCode(savedZipCode);
             searchCinemas(savedZipCode);
         }
+
+        const fetchFavCount = async () => {
+            try {
+                const response = await fetch(`${BACKEND_URL}/favorites/${currentUserId}`);
+                if (!response.ok) return;
+
+                const data = await response.json();
+                setFavCount(Array.isArray(data) ? data.length : 0);
+            } catch (err) {
+                console.error("Fetch favorite count error:", err);
+            }
+        };
+
+        fetchFavCount();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [currentUserId]);
 
     const handleSearch = () => searchCinemas(zipCode);
     const handleKeyDown = (e) => { if (e.key === "Enter") handleSearch(); };
     const handleViewMovies = (cinemaId, cinemaName) => {
         navigate(`/cinema/${cinemaId}`, { state: { cinemaName } });
+    };
+    const handleDrawerClose = async () => {
+        setShowFavDrawer(false);
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/favorites/${currentUserId}`);
+            if (!response.ok) return;
+
+            const data = await response.json();
+            setFavCount(Array.isArray(data) ? data.length : 0);
+        } catch (err) {
+            console.error("Refresh favorite count error:", err);
+        }
     };
 
     return (
@@ -260,6 +714,14 @@ const CinemaSearchPage = () => {
             <div className="scanline-bar" />
             <FilmStrip side="left" />
             <FilmStrip side="right" />
+
+            {/* Favourites Drawer */}
+            {showFavDrawer && (
+                <FavouritesDrawer
+                    onClose={handleDrawerClose}
+                    onNavigate={handleViewMovies}
+                />
+            )}
 
             {/* Ambient orbs */}
             <div style={s.orbTopLeft} />
@@ -276,9 +738,45 @@ const CinemaSearchPage = () => {
                 {/* ── Header bar ── */}
                 <header style={s.header} className="section-reveal">
                     <div style={s.logoMark}>✦ CINEMA</div>
-                    <div style={s.liveBadge}>
-                        <span style={s.liveDot} />
-                        LIVE SEARCH
+
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        {/* Favourites entry button */}
+                        <button
+                            className={`fav-entry-btn${favCount > 0 ? " has-favs" : ""}`}
+                            onClick={() => setShowFavDrawer(true)}
+                            style={{
+                                display: "inline-flex", alignItems: "center", gap: 8,
+                                padding: "8px 14px", borderRadius: 8,
+                                border: "1px solid rgba(255,255,255,0.1)",
+                                background: "rgba(255,255,255,0.04)",
+                                color: "rgba(255,255,255,0.75)",
+                                cursor: "pointer", fontSize: 13, fontWeight: 600,
+                                letterSpacing: "0.5px",
+                                fontFamily: "'DM Sans', sans-serif",
+                                position: "relative",
+                            }}
+                        >
+                            <span style={{ fontSize: 15 }}>❤️</span>
+                            <span>Saved</span>
+                            {favCount > 0 && (
+                                <span style={{
+                                    minWidth: 18, height: 18, borderRadius: 5,
+                                    background: "#ff4b63",
+                                    color: "#fff",
+                                    fontSize: 10, fontWeight: 800,
+                                    display: "inline-flex", alignItems: "center", justifyContent: "center",
+                                    padding: "0 4px",
+                                    lineHeight: 1,
+                                }}>
+                                    {favCount}
+                                </span>
+                            )}
+                        </button>
+
+                        <div style={s.liveBadge}>
+                            <span style={s.liveDot} />
+                            LIVE SEARCH
+                        </div>
                     </div>
                 </header>
 

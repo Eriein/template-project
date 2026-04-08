@@ -11,7 +11,7 @@ const injectStyles = () => {
     style.id = "cinema-detail-styles";
     style.textContent = `
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&display=swap');
- 
+
         @keyframes grain {
             0%, 100% { transform: translate(0,0); }
             10%       { transform: translate(-2%,-3%); }
@@ -40,13 +40,13 @@ const injectStyles = () => {
             0%   { transform: translateY(-100%); }
             100% { transform: translateY(100vh); }
         }
- 
+
         .cinema-page * { box-sizing: border-box; }
- 
+
         .cinema-page {
             font-family: 'DM Sans', sans-serif;
         }
- 
+
         /* Grain overlay */
         .cinema-page::after {
             content: '';
@@ -60,7 +60,7 @@ const injectStyles = () => {
             animation: grain 8s steps(10) infinite;
             z-index: 9999;
         }
- 
+
         /* Scanline flicker */
         .scanline-bar {
             position: fixed;
@@ -71,7 +71,7 @@ const injectStyles = () => {
             animation: scanline 8s linear infinite;
             z-index: 9998;
         }
- 
+
         /* Back button hover */
         .back-btn:hover {
             background: rgba(255,220,80,0.12) !important;
@@ -79,7 +79,7 @@ const injectStyles = () => {
             color: #ffd84f !important;
             transform: translateX(-3px);
         }
- 
+
         /* Movie card hover */
         .movie-card {
             transition: transform 0.35s cubic-bezier(.22,.68,0,1.2), box-shadow 0.35s ease, border-color 0.3s ease;
@@ -93,7 +93,7 @@ const injectStyles = () => {
         .movie-card:hover .poster-img {
             transform: scale(1.04);
         }
- 
+
         /* Showtime pill hover */
         .showtime-pill:hover {
             background: #ffd84f !important;
@@ -101,7 +101,7 @@ const injectStyles = () => {
             transform: translateY(-2px) scale(1.06);
             box-shadow: 0 8px 20px rgba(255,216,79,0.4) !important;
         }
- 
+
         /* Skeleton shimmer */
         .skeleton-shimmer {
             background: linear-gradient(
@@ -113,7 +113,7 @@ const injectStyles = () => {
             background-size: 700px 100%;
             animation: shimmer 1.8s infinite;
         }
- 
+
         /* Ticker */
         .ticker-inner {
             display: flex;
@@ -122,7 +122,7 @@ const injectStyles = () => {
             width: max-content;
         }
         .ticker-inner:hover { animation-play-state: paused; }
- 
+
         /* Stagger cards */
         .movie-card:nth-child(1)  { animation-delay: 0.05s; }
         .movie-card:nth-child(2)  { animation-delay: 0.12s; }
@@ -130,21 +130,87 @@ const injectStyles = () => {
         .movie-card:nth-child(4)  { animation-delay: 0.26s; }
         .movie-card:nth-child(5)  { animation-delay: 0.33s; }
         .movie-card:nth-child(6)  { animation-delay: 0.40s; }
- 
+
         .poster-wrap { overflow: hidden; border-radius: 14px; }
         .poster-img  { transition: transform 0.5s ease; display: block; }
- 
+
         /* Section fade-in */
         .section-reveal {
             animation: fadeSlideUp 0.6s ease both;
         }
- 
+
         /* Divider line */
         .gold-divider {
             height: 1px;
             background: linear-gradient(90deg, transparent, rgba(255,220,80,0.4), transparent);
             margin: 0;
             border: none;
+        }
+
+        /* Favorite button */
+        @keyframes heartPop {
+            0%   { transform: scale(1); }
+            30%  { transform: scale(1.45); }
+            55%  { transform: scale(0.88); }
+            75%  { transform: scale(1.18); }
+            100% { transform: scale(1); }
+        }
+        @keyframes sparkle {
+            0%   { opacity: 1; transform: translate(-50%,-50%) scale(0); }
+            60%  { opacity: 1; transform: translate(-50%,-50%) scale(1.4); }
+            100% { opacity: 0; transform: translate(-50%,-50%) scale(1.8); }
+        }
+        @keyframes favToast {
+            0%   { opacity: 0; transform: translateY(10px) scale(0.92); }
+            15%  { opacity: 1; transform: translateY(0) scale(1); }
+            75%  { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-8px) scale(0.95); }
+        }
+        .fav-btn {
+            transition: transform 0.2s ease, border-color 0.3s ease, background 0.3s ease !important;
+        }
+        .fav-btn:hover {
+            transform: scale(1.06);
+            border-color: rgba(255,80,100,0.5) !important;
+            background: rgba(255,80,100,0.1) !important;
+        }
+        .fav-btn.is-fav {
+            border-color: rgba(255,80,100,0.45) !important;
+            background: rgba(255,80,100,0.1) !important;
+        }
+        .fav-btn.is-fav:hover {
+            border-color: rgba(255,80,100,0.7) !important;
+            background: rgba(255,80,100,0.18) !important;
+        }
+        .heart-icon.pop {
+            animation: heartPop 0.5s cubic-bezier(.22,.68,0,1.2) forwards;
+        }
+        .fav-sparkle {
+            position: absolute;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,80,100,0.6);
+            pointer-events: none;
+            animation: sparkle 0.55s ease forwards;
+        }
+        .fav-toast {
+            position: fixed;
+            bottom: 32px; left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 22px;
+            border-radius: 10px;
+            background: rgba(20,16,28,0.96);
+            border: 1px solid rgba(255,80,100,0.3);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            letter-spacing: 0.3px;
+            z-index: 10000;
+            white-space: nowrap;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+            animation: favToast 2.4s ease forwards;
+            pointer-events: none;
         }
     `;
     document.head.appendChild(style);
@@ -178,11 +244,39 @@ const CinemaDetailPage = () => {
     const [loading, setLoading] = useState(true);
     const [pageLoaded, setPageLoaded] = useState(false);
     const [error, setError] = useState("");
+    const [isFavorited, setIsFavorited] = useState(false);
+    const [showSparkle, setShowSparkle] = useState(false);
+    const [toast, setToast] = useState(null);
+
+    const user =
+        JSON.parse(localStorage.getItem("user")) ||
+        JSON.parse(localStorage.getItem("userInfo")) ||
+        {};
+
+    const currentUserId = user?.id || user?._id || user?.userId || "user12345";
+
+    const checkFavoriteStatus = async () => {
+        try {
+            const response = await fetch(`${BACKEND_URL}/favorites/${currentUserId}`);
+            if (!response.ok) return;
+
+            const data = await response.json();
+
+            const found = Array.isArray(data)
+                ? data.find((item) => String(item.cinemaId) === String(cinemaId))
+                : null;
+
+            setIsFavorited(!!found);
+        } catch (err) {
+            console.error("Favorite status error:", err);
+        }
+    };
 
     useEffect(() => {
         injectStyles();
         setTimeout(() => setPageLoaded(true), 60);
         fetchCinemaDetails();
+        checkFavoriteStatus();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [cinemaId]);
 
@@ -204,11 +298,70 @@ const CinemaDetailPage = () => {
         }
     };
 
+    const handleFavorite = async () => {
+        if (!currentUserId) {
+            alert("Please log in first.");
+            return;
+        }
+
+        try {
+            if (!isFavorited) {
+                const response = await fetch(`${BACKEND_URL}/favorites`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        userId: currentUserId,
+                        cinemaId: cinemaId,
+                        cinemaName: cinemaName,
+                        address: "",
+                    }),
+                });
+
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(data.error || "Failed to add favorite");
+                }
+
+                setIsFavorited(true);
+                setToast({ msg: `❤️ ${cinemaName} added to favourites`, key: Date.now() });
+            } else {
+                const response = await fetch(
+                    `${BACKEND_URL}/favorites/${currentUserId}/${cinemaId}`,
+                    {
+                        method: "DELETE",
+                    }
+                );
+
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(data.error || "Failed to remove favorite");
+                }
+
+                setIsFavorited(false);
+                setToast({ msg: `🗑 ${cinemaName} removed from favourites`, key: Date.now() });
+            }
+
+            setShowSparkle(true);
+            setTimeout(() => setShowSparkle(false), 600);
+            setTimeout(() => setToast(null), 2500);
+        } catch (err) {
+            console.error("Favorite error:", err);
+            alert(err.message || "Favorite action failed.");
+        }
+    };
+
     const handleBack = () => navigate("/cinemas");
 
     return (
         <div className="cinema-page" style={s.page}>
             <div className="scanline-bar" />
+
+            {/* Toast notification */}
+            {toast && (
+                <div key={toast.key} className="fav-toast">{toast.msg}</div>
+            )}
 
             {/* Ambient background orbs */}
             <div style={s.orbTopLeft} />
@@ -232,6 +385,33 @@ const CinemaDetailPage = () => {
                     </button>
 
                     <div style={s.headerRight}>
+                        {/* Favourite button */}
+                        <button
+                            className={`fav-btn${isFavorited ? " is-fav" : ""}`}
+                            style={s.favBtn}
+                            onClick={handleFavorite}
+                            title={isFavorited ? "Remove from favourites" : "Add to favourites"}
+                        >
+                            <span style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
+                                {showSparkle && <span className="fav-sparkle" />}
+                                <span
+                                    className={`heart-icon${showSparkle ? " pop" : ""}`}
+                                    style={{
+                                        fontSize: 16,
+                                        lineHeight: 1,
+                                        display: "inline-block",
+                                        filter: isFavorited ? "none" : "grayscale(1) opacity(0.6)",
+                                        transition: "filter 0.3s ease",
+                                    }}
+                                >
+                                    ❤️
+                                </span>
+                            </span>
+                            <span style={s.favBtnLabel}>
+                                {isFavorited ? "Saved" : "Save Cinema"}
+                            </span>
+                        </button>
+
                         <div style={s.nowShowingBadge}>
                             <span style={s.dot} />
                             LIVE LISTINGS
@@ -480,6 +660,29 @@ const s = {
         letterSpacing: "0.5px",
         fontFamily: "'DM Sans', sans-serif",
         transition: "all 0.25s ease",
+    },
+    favBtn: {
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 8,
+        padding: "10px 18px",
+        borderRadius: 8,
+        border: "1px solid rgba(255,255,255,0.12)",
+        background: "rgba(255,255,255,0.04)",
+        color: "#fff",
+        cursor: "pointer",
+        fontSize: 13,
+        fontWeight: 600,
+        letterSpacing: "0.5px",
+        fontFamily: "'DM Sans', sans-serif",
+        position: "relative",
+        overflow: "visible",
+    },
+    favBtnLabel: {
+        fontSize: 13,
+        fontWeight: 600,
+        letterSpacing: "0.5px",
+        color: "rgba(255,255,255,0.8)",
     },
     headerRight: {
         display: "flex",
