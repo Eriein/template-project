@@ -1,14 +1,15 @@
+//flashcards
+
 const express = require("express");
 const router = express.Router();
 const Flashcard = require("../models/flashcardModel");
 
-
-// GET /api/flashcards
-// Returns all flashcards
-
+// GET /api/flashcards - Returns 4 random flashcards
 router.get("/", async (req, res) => {
     try {
-        const flashcards = await Flashcard.find();
+        const flashcards = await Flashcard.aggregate([
+            { $sample: { size: 4 } }
+        ]);
         res.json(flashcards);
     } catch (err) {
         console.error("GET /flashcards error:", err);
@@ -16,34 +17,12 @@ router.get("/", async (req, res) => {
     }
 });
 
-
-// GET /api/flashcards/:id
-// Returns a single flashcard by ID
-
-router.get("/:id", async (req, res) => {
-    try {
-        const flashcard = await Flashcard.findById(req.params.id);
-        if (!flashcard) {
-            return res.status(404).json({ error: "Flashcard not found" });
-        }
-        res.json(flashcard);
-    } catch (err) {
-        console.error("GET /flashcards/:id error:", err);
-        res.status(500).json({ error: "Failed to fetch flashcard" });
-    }
-});
-
-
 // POST /api/flashcards
-// Creates a new flashcard
-
 router.post("/", async (req, res) => {
     const { title, description } = req.body;
-
     if (!title || !description) {
         return res.status(400).json({ error: "title and description are required" });
     }
-
     try {
         const newCard = await Flashcard.create({ title, description });
         res.status(201).json(newCard);
@@ -53,24 +32,18 @@ router.post("/", async (req, res) => {
     }
 });
 
-
-// Updates an existing flashcard
-
-
+// PUT /api/flashcards/:id
 router.put("/:id", async (req, res) => {
     const { title, description } = req.body;
-
     try {
         const flashcard = await Flashcard.findByIdAndUpdate(
             req.params.id,
             { ...(title && { title }), ...(description && { description }) },
             { new: true, runValidators: true }
         );
-
         if (!flashcard) {
             return res.status(404).json({ error: "Flashcard not found" });
         }
-
         res.json(flashcard);
     } catch (err) {
         console.error("PUT /flashcards/:id error:", err);
@@ -78,22 +51,13 @@ router.put("/:id", async (req, res) => {
     }
 });
 
-
-// DELETE /api/flashcards/:id
-// Deletes a flashcard by ID
-
-router.delete("/:id", async (req, res) => {
+// DELETE ALL /api/flashcards
+router.delete("/", async (req, res) => {
     try {
-        const flashcard = await Flashcard.findByIdAndDelete(req.params.id);
-
-        if (!flashcard) {
-            return res.status(404).json({ error: "Flashcard not found" });
-        }
-
-        res.json({ message: `Flashcard ${req.params.id} deleted successfully` });
+        await Flashcard.deleteMany({});
+        res.json({ message: "All flashcards deleted" });
     } catch (err) {
-        console.error("DELETE /flashcards/:id error:", err);
-        res.status(500).json({ error: "Failed to delete flashcard" });
+        res.status(500).json({ error: "Failed to delete all flashcards" });
     }
 });
 

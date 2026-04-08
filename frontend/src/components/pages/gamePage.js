@@ -30,22 +30,25 @@ const GamePage = () => {
 
       data.forEach((item, index) => {
         formatted.push(
+          //flashcards -- new styling
           {
-            key: `${item.id}-title`,
-            id: item.id,
+            key: `${item._id}-title`,
+            id: item._id,
             type: "title",
             text: item.title,
             x: 50,
-            y: 50 + index * 90
+            y: 80 + index * 180
           },
+          // Description cards - right column, staggered
           {
-            key: `${item.id}-desc`,
-            id: item.id,
+            key: `${item._id}-desc`,
+            id: item._id,
             type: "description",
             text: item.description,
-            x: 350,
-            y: 50 + index * 90
+            x: index % 2 === 0 ? 550 : 750,  // alternates between 550 and 750
+            y: 20 + index * 180 + 90
           }
+
         );
       });
 
