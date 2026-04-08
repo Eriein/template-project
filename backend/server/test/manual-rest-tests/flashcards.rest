@@ -1,0 +1,96 @@
+ 
+### Flashcard API - REST Tests
+### Requires: REST Client extension for VS Code
+### Base URL: adjust @host if your port differs
+### Note: MongoDB IDs are 24-char hex strings.
+###   Replace {{id}} with a real _id from a POST response.
+
+
+@host = http://localhost:8081
+@baseUrl = {{host}}/api/flashcards
+
+### May need to change with a different ID
+@id = 69cc6a89118c29bec1514fee
+
+ 
+### 1. GET ALL flashcards
+ 
+GET {{baseUrl}}
+Content-Type: application/json
+
+###
+
+ 
+### 2. POST - Create a new flashcard
+ 
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "title": "Photosynthesis",
+  "description": "The process by which green plants convert sunlight into food using CO2 and water."
+}
+
+###
+
+ 
+### 3. POST - Create a second flashcard
+ 
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "title": "Mitosis",
+  "description": "A type of cell division resulting in two daughter cells with the same number of chromosomes as the parent."
+}
+
+###
+
+ 
+### 4. GET a single flashcard by ID
+###    Replace @id at the top with a real _id
+ 
+GET {{baseUrl}}/{{id}}
+Content-Type: application/json
+
+
+### 5. PUT - Update a flashcard by ID
+ 
+PUT {{baseUrl}}/{{id}}
+Content-Type: application/json
+
+{
+  "title": "Photosynthesis (Updated)",
+  "description": "Plants use sunlight, water, and CO2 to produce glucose and oxygen."
+}
+
+
+### 6. PUT - Partial update (description only)
+ 
+PUT {{baseUrl}}/{{id}}
+Content-Type: application/json
+
+{
+  "description": "Cell division producing two genetically identical daughter cells."
+}
+ 
+### 7. DELETE a flashcard by ID
+ 
+DELETE {{baseUrl}}/{{id}}
+Content-Type: application/json
+
+ 
+### 8. GET a non-existent ID (expect 404)
+ 
+GET {{baseUrl}}/000000000000000000000000
+Content-Type: application/json
+
+
+### 9. POST - Missing fields (expect 400)
+
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "title": "Incomplete card"
+}
