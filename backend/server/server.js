@@ -26,6 +26,7 @@ const getUserScore = require("./routes/getUserScore");
 const userSetZipCode = require("./routes/userSetZipCode");
 const userGetAllZipCodes = require("./routes/userGetAllZipCodes");
 const plotSummaryRoute = require('./routes/plotSummary');
+const favoriteRoutes = require('./routes/favoriteRoutes');
 
 
 
@@ -52,6 +53,7 @@ app.use("/movieglu", movieGluRoutes);
 app.use("/api/flashcards", flashcardRouter);
 
 app.use('/movies', plotSummaryRoute);
+app.use('/favorites', favoriteRoutes);
 
 
 app.listen(SERVER_PORT, (req, res) => {

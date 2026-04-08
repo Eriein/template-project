@@ -1,0 +1,12 @@
+POST http://localhost:8081/favorites
+Content-Type: application/json
+
+{
+  "userId": "user12345",
+  "cinemaId": "cinema001",
+  "cinemaName": "AMC Boston Common",
+  "address": "175 Tremont St, Boston, MA"
+}
+###
+
+GET http://localhost:8081/favorites/user12345
