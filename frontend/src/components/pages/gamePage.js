@@ -1,6 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
 
 /***********************
+ *Full disclaimer: code is AI generated & human reviewed and 
+ tested as in accordance to class policy and professor permission
+ ***********************/
+
+/***********************
  * FUTURE API PLACEHOLDER
  ***********************/
 async function fetchFlashcards() {
