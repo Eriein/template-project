@@ -1,6 +1,6 @@
 import React from "react";
 // We use Route in order to define the different routes of our application
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import './css/card.css';
 import './index.css';
 
@@ -24,6 +24,7 @@ export const UserContext = createContext();
 //test again
 const App = () => {
   const [user, setUser] = useState();
+  const location = useLocation();
 
   useEffect(() => {
     setUser(getUserInfo());
@@ -31,7 +32,7 @@ const App = () => {
 
   return (
     <>
-      <Navbar />
+      {location.pathname !== '/' && <Navbar />}
       <UserContext.Provider value={user}>
         <Routes>
           <Route exact path="/" element={<LandingPage />} />
@@ -42,7 +43,7 @@ const App = () => {
           <Route path="/cinemas" element={<CinemaSearchPage />} />
           <Route path="/cinema/:cinemaId" element={<CinemaDetailPage />} />
           <Route path="/movie/:imdbId" element={<MovieDetailPage />} />
-          <Route exact path="/gamePage" element={<GamePage />} />          
+          <Route exact path="/gamePage" element={<GamePage />} />
 
         </Routes>
       </UserContext.Provider>
