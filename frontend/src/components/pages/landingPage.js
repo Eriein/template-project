@@ -251,29 +251,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Bottom CTA section */}
-        <section style={{ padding: '64px 24px', textAlign: 'center', borderTop: `1px solid ${COLORS.border}` }}>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '12px' }}>Ready to explore?</h2>
-          <p style={{ color: COLORS.textMuted, marginBottom: '32px' }}>Join MovieNow and start discovering today.</p>
-          <div style={styles.ctaRow}>
-            <Link
-              to="/signup"
-              style={styles.btnPrimary(hoveredBtn === 'cta-start')}
-              onMouseEnter={() => setHoveredBtn('cta-start')}
-              onMouseLeave={() => setHoveredBtn(null)}
-            >
-              Get Started
-            </Link>
-            <Link
-              to="/login"
-              style={styles.btnSecondary(hoveredBtn === 'cta-login')}
-              onMouseEnter={() => setHoveredBtn('cta-login')}
-              onMouseLeave={() => setHoveredBtn(null)}
-            >
-              Log In
-            </Link>
-          </div>
-        </section>
       <footer style={styles.footer}>
         &copy; {new Date().getFullYear()} MovieNow. All rights reserved.
       </footer>
