@@ -10,17 +10,23 @@ export default function Navbar() {
   // Warning disabled:
   // eslint-disable-next-line
   const [user, setUser] = useState({});
+  const [lastMovieId, setLastMovieId] = useState(null);
 
   useEffect(() => {
     setUser(getUserInfo());
+    try {
+      const saved = localStorage.getItem('lastViewedMovie');
+      if (saved) setLastMovieId(JSON.parse(saved).imdbId);
+    } catch {}
   }, []);
 
   return (
     <ReactNavbar bg="dark" variant="dark">
       <Container>
         <Nav className="me-auto">
-          <Nav.Link href="/login">Log In</Nav.Link>
-          <Nav.Link href="/signup">Sign Up</Nav.Link>
+          {lastMovieId && (
+            <Nav.Link href={`/movie/${lastMovieId}`}>Movie Info</Nav.Link>
+          )}
           <Nav.Link href="/cinemas">Cinema Search</Nav.Link>
           <Nav.Link href="/privateUserProfile">Profile</Nav.Link>
           <Nav.Link href="/gamePage">Game Page</Nav.Link>

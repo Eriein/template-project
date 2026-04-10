@@ -58,6 +58,11 @@ const MovieDetailPage = () => {
 
         if (!cancelled) {
           setMovie(response.data);
+          localStorage.setItem('lastViewedMovie', JSON.stringify({
+            imdbId: response.data.imdbId,
+            title: response.data.title,
+            poster: response.data.poster,
+          }));
         }
       } catch (err) {
         if (cancelled) return;
