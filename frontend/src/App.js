@@ -11,8 +11,6 @@ import HomePage from "./components/pages/homePage";
 import Login from "./components/pages/loginPage";
 import Signup from "./components/pages/registerPage";
 import PrivateUserProfile from "./components/pages/privateUserProfilePage";
-import MbtaAlertsPage from "./components/pages/mbtaAlerts";
-import MbtaArrivalsPage from "./components/pages/mbtaArrivalsPage";
 import MovieDetailPage from "./components/pages/movieDetailPage";
 import { createContext, useState, useEffect } from "react";
 import getUserInfo from "./utilities/decodeJwt";
@@ -40,8 +38,6 @@ const App = () => {
           <Route exact path="/home" element={<HomePage />} />
           <Route exact path="/login" element={<Login />} />
           <Route exact path="/signup" element={<Signup />} />
-          <Route exact path="/mbtaAlerts" element={<MbtaAlertsPage />} />
-          <Route exact path="/mbtaArrivalsPage" element={<MbtaArrivalsPage />} />
           <Route path="/privateUserProfile" element={<PrivateUserProfile />} />
           <Route path="/cinemas" element={<CinemaSearchPage />} />
           <Route path="/cinema/:cinemaId" element={<CinemaDetailPage />} />
