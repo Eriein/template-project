@@ -1,0 +1,23 @@
+### [GET] Search by title — returns results with posters only
+GET http://localhost:8081/movieus/search?query=inception
+
+### [GET] Search with pagination — page 2
+GET http://localhost:8081/movies/search?query=batman&page=2
+
+### [GET] Search title with spaces
+GET http://localhost:8081/movies/search?query=the dark knight
+
+### [GET] Missing query param → 400
+GET http://localhost:8081/movies/search
+
+### [GET] Empty query string → 400
+GET http://localhost:8081/movies/search?query=
+
+### [GET] Query too long (>100 chars) → 400
+GET http://localhost:8081/movies/search?query=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+### [GET] No results found → 404
+GET http://localhost:8081/movies/search?query=xzxzxzxzxzxzxzxzxzxznomatch99999
+
+### [GET] Page out of range → uses default page 1
+GET http://localhost:8081/movies/search?query=inception&page=999

@@ -10,3 +10,4 @@ context*
 .agents
 skills-lock.json
 docs/
+.playwright-mcp

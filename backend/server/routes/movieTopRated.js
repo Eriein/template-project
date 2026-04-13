@@ -5,6 +5,35 @@ const router = express.Router();
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 const TMDB_IMG  = 'https://image.tmdb.org/t/p/w500';
 
+// Data shaping functions are kept separate from the network calls so each
+// piece of logic — poster filtering, URL building, year extraction — can be
+// verified independently without running a server or mocking TMDB.
+const hasTmdbPoster = (movie) => Boolean(movie.poster_path);
+
+const formatRating = (voteAverage) =>
+  voteAverage != null ? voteAverage.toFixed(1) : null;
+
+const extractYear = (releaseDate) =>
+  releaseDate ? releaseDate.slice(0, 4) : '';
+
+const toPosterUrl = (posterPath) => `${TMDB_IMG}${posterPath}`;
+
+const toMovieShape = (movie, imdbId) => ({
+  imdbId,
+  title: movie.title,
+  year: extractYear(movie.release_date),
+  poster: toPosterUrl(movie.poster_path),
+  rating: formatRating(movie.vote_average),
+});
+
+const buildTopRatedResponse = (candidates, imdbIds) => ({
+  results: candidates
+    .map((movie, i) => toMovieShape(movie, imdbIds[i]))
+    .filter((m) => m.imdbId),
+});
+
+// Everything below makes real network calls. The handler only fetches data
+// and passes it to the shaping functions above — no transformation logic here.
 const tmdbGet = (path, params, apiKey) =>
   axios.get(`${TMDB_BASE}${path}`, {
     headers: { Authorization: `Bearer ${apiKey}` },
@@ -19,33 +48,21 @@ router.get('/top-rated', async (req, res) => {
   }
 
   try {
-    // Step 1: fetch top-rated list (single call)
     const listRes = await tmdbGet('/movie/top_rated', { page: 1 }, apiKey);
 
     const candidates = (listRes.data.results || [])
-      .filter((m) => m.poster_path)
+      .filter(hasTmdbPoster)
       .slice(0, 10);
 
-    // Step 2: fetch IMDb IDs in parallel (needed for OMDB-based detail page)
-    const detailFetches = candidates.map((m) =>
-      tmdbGet(`/movie/${m.id}/external_ids`, {}, apiKey)
-        .then((r) => r.data.imdb_id)
-        .catch(() => null)
+    const imdbIds = await Promise.all(
+      candidates.map((m) =>
+        tmdbGet(`/movie/${m.id}/external_ids`, {}, apiKey)
+          .then((r) => r.data.imdb_id)
+          .catch(() => null)
+      )
     );
 
-    const imdbIds = await Promise.all(detailFetches);
-
-    const results = candidates
-      .map((movie, i) => ({
-        imdbId: imdbIds[i],
-        title: movie.title,
-        year: movie.release_date?.slice(0, 4) || '',
-        poster: `${TMDB_IMG}${movie.poster_path}`,
-        rating: movie.vote_average?.toFixed(1),
-      }))
-      .filter((m) => m.imdbId); // drop any where IMDb ID lookup failed
-
-    res.json({ results });
+    res.json(buildTopRatedResponse(candidates, imdbIds));
   } catch (err) {
     console.error('movieTopRated fetch error', err.message);
     if (err.code === 'ECONNABORTED') return res.status(504).json({ error: 'Movie service timed out.' });
@@ -55,3 +72,9 @@ router.get('/top-rated', async (req, res) => {
 });
 
 module.exports = router;
+module.exports.hasTmdbPoster = hasTmdbPoster;
+module.exports.formatRating = formatRating;
+module.exports.extractYear = extractYear;
+module.exports.toPosterUrl = toPosterUrl;
+module.exports.toMovieShape = toMovieShape;
+module.exports.buildTopRatedResponse = buildTopRatedResponse;

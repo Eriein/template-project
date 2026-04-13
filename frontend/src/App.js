@@ -21,12 +21,14 @@ export const LastMovieContext = createContext();
 
 const HIDE_NAVBAR_ON = ['/', '/login', '/signup'];
 
+const loadLastMovie = () => {
+  try { return JSON.parse(localStorage.getItem('lastViewedMovie')) || null; }
+  catch { return null; }
+};
+
 const App = () => {
   const [user, setUser] = useState();
-  const [lastMovie, setLastMovie] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('lastViewedMovie')) || null; }
-    catch { return null; }
-  });
+  const [lastMovie, setLastMovie] = useState(loadLastMovie);
   const location = useLocation();
 
   useEffect(() => {
