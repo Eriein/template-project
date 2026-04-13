@@ -60,9 +60,18 @@ router.get('/search', async (req, res) => {
       });
     }
 
-    const results = response.data.Search || [];
+    const raw = response.data.Search || [];
     const totalResults = parseInt(response.data.totalResults, 10) || 0;
     const totalPages = Math.ceil(totalResults / 10);
+
+    const results = raw
+      .filter((movie) => movie.Poster && movie.Poster !== 'N/A')
+      .map((movie) => ({
+        imdbId: movie.imdbID,
+        title: movie.Title,
+        year: movie.Year,
+        poster: movie.Poster,
+      }));
 
     res.json({
       query,
@@ -70,12 +79,7 @@ router.get('/search', async (req, res) => {
       totalResults,
       totalPages,
       count: results.length,
-      results: results.map((movie) => ({
-        imdbId: movie.imdbID,
-        title: movie.Title,
-        year: movie.Year,
-        poster: movie.Poster !== 'N/A' ? movie.Poster : null
-      }))
+      results,
     });
   } catch (err) {
     const status = err.response?.status;

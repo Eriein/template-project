@@ -27,6 +27,7 @@ const userSetZipCode = require("./routes/userSetZipCode");
 const userGetAllZipCodes = require("./routes/userGetAllZipCodes");
 const plotSummaryRoute = require('./routes/plotSummary');
 const movieSearchRoute = require('./routes/movieSearch');
+const movieTopRatedRoute = require('./routes/movieTopRated');
 const favoriteRoutes = require('./routes/favoriteRoutes');
 
 
@@ -55,6 +56,7 @@ app.use("/api/flashcards", flashcardRouter);
 
 app.use('/movies', plotSummaryRoute);
 app.use('/movies', movieSearchRoute);
+app.use('/movies', movieTopRatedRoute);
 app.use('/favorites', favoriteRoutes);
 
 
