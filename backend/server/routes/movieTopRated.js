@@ -2,51 +2,54 @@ const express = require('express');
 const axios = require('axios');
 const router = express.Router();
 
-// IMDb Top 10 by rating — stable, rarely changes
-const TOP_RATED_IDS = [
-  'tt0111161', // The Shawshank Redemption
-  'tt0068646', // The Godfather
-  'tt0468569', // The Dark Knight
-  'tt0071562', // The Godfather Part II
-  'tt0050083', // 12 Angry Men
-  'tt0108052', // Schindler's List
-  'tt0167260', // The Lord of the Rings: The Return of the King
-  'tt0110912', // Pulp Fiction
-  'tt0060196', // The Good, the Bad and the Ugly
-  'tt1375666', // Inception
-];
+const TMDB_BASE = 'https://api.themoviedb.org/3';
+const TMDB_IMG  = 'https://image.tmdb.org/t/p/w500';
+
+const tmdbGet = (path, params, apiKey) =>
+  axios.get(`${TMDB_BASE}${path}`, {
+    headers: { Authorization: `Bearer ${apiKey}` },
+    params: { language: 'en-US', ...params },
+    timeout: 8000,
+  });
 
 router.get('/top-rated', async (req, res) => {
-  if (!process.env.OMDB_API_KEY) {
-    return res.status(500).json({ error: 'Configuration error.', details: ['OMDB_API_KEY is missing.'] });
+  const apiKey = process.env.TMDB_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ error: 'Configuration error.', details: ['TMDB_API_KEY is missing.'] });
   }
 
   try {
-    const fetches = TOP_RATED_IDS.map((id) =>
-      axios.get('http://www.omdbapi.com/', {
-        params: { apikey: process.env.OMDB_API_KEY, i: id, plot: 'short' },
-        timeout: 8000,
-      })
+    // Step 1: fetch top-rated list (single call)
+    const listRes = await tmdbGet('/movie/top_rated', { page: 1 }, apiKey);
+
+    const candidates = (listRes.data.results || [])
+      .filter((m) => m.poster_path)
+      .slice(0, 10);
+
+    // Step 2: fetch IMDb IDs in parallel (needed for OMDB-based detail page)
+    const detailFetches = candidates.map((m) =>
+      tmdbGet(`/movie/${m.id}/external_ids`, {}, apiKey)
+        .then((r) => r.data.imdb_id)
+        .catch(() => null)
     );
 
-    const responses = await Promise.all(fetches);
+    const imdbIds = await Promise.all(detailFetches);
 
-    const results = responses
-      .map((r) => r.data)
-      .filter((movie) => movie.Response === 'True' && movie.Poster && movie.Poster !== 'N/A')
-      .map((movie) => ({
-        imdbId: movie.imdbID,
-        title: movie.Title,
-        year: movie.Year,
-        poster: movie.Poster,
-        rating: movie.imdbRating,
-      }));
+    const results = candidates
+      .map((movie, i) => ({
+        imdbId: imdbIds[i],
+        title: movie.title,
+        year: movie.release_date?.slice(0, 4) || '',
+        poster: `${TMDB_IMG}${movie.poster_path}`,
+        rating: movie.vote_average?.toFixed(1),
+      }))
+      .filter((m) => m.imdbId); // drop any where IMDb ID lookup failed
 
     res.json({ results });
   } catch (err) {
     console.error('movieTopRated fetch error', err.message);
-    const isTimeout = err.code === 'ECONNABORTED';
-    if (isTimeout) return res.status(504).json({ error: 'Movie service timed out.' });
+    if (err.code === 'ECONNABORTED') return res.status(504).json({ error: 'Movie service timed out.' });
+    if (err.response?.status === 401) return res.status(502).json({ error: 'Invalid TMDB API key.' });
     res.status(500).json({ error: 'Unexpected server error.' });
   }
 });

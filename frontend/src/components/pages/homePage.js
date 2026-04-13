@@ -47,23 +47,6 @@ const styles = {
     background: 'radial-gradient(circle, rgba(220,38,38,0.15) 0%, transparent 70%)',
     pointerEvents: 'none',
   },
-  headerRow: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    marginBottom: '8px',
-  },
-  logoutBtn: {
-    padding: '10px 20px',
-    borderRadius: '8px',
-    border: 'none',
-    background: 'transparent',
-    color: COLORS.textMuted,
-    fontFamily: 'inherit',
-    fontSize: '0.9rem',
-    fontWeight: 600,
-    cursor: 'pointer',
-    transition: 'color 0.2s',
-  },
   eyebrow: {
     fontSize: '0.75rem',
     fontWeight: 600,
@@ -247,12 +230,6 @@ const HomePage = () => {
     if (e.key === 'Enter') handleSearch(1);
   };
 
-  const handleLogout = (e) => {
-    e.preventDefault();
-    localStorage.removeItem('accessToken');
-    return navigate('/');
-  };
-
   React.useEffect(() => {
     setUser(getUserInfo());
     axios
@@ -262,9 +239,11 @@ const HomePage = () => {
   }, []);
 
   if (!user) return (
-    <div style={styles.root}>
-      <div style={styles.container}>
-        <h4>Log in to view this page.</h4>
+    <div style={{ ...styles.root, justifyContent: 'center' }}>
+      <div style={{ textAlign: 'center' }}>
+        <p style={{ fontSize: '1.1rem', color: COLORS.textMuted, marginBottom: '16px' }}>
+          You need to be logged in to view this page.
+        </p>
       </div>
     </div>
   );
@@ -274,18 +253,6 @@ const HomePage = () => {
   return (
     <div style={styles.root}>
       <div style={styles.container}>
-
-        {/* Logout row */}
-        <div style={styles.headerRow} className="lp-fade-up">
-          <button
-            style={styles.logoutBtn}
-            onClick={handleLogout}
-            onMouseEnter={(e) => (e.target.style.color = COLORS.textPrimary)}
-            onMouseLeave={(e) => (e.target.style.color = COLORS.textMuted)}
-          >
-            Log Out
-          </button>
-        </div>
 
         {/* Hero */}
         <section style={styles.heroWrapper}>
