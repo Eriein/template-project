@@ -637,6 +637,8 @@ const CinemaSearchPage = () => {
     const [hasSearched, setHasSearched] = useState(false);
     const [showFavDrawer, setShowFavDrawer] = useState(false);
     const [favCount, setFavCount] = useState(0);
+    const [mapQuery, setMapQuery] = useState("");
+    const [mapError, setMapError] = useState("");
 
     const user =
         JSON.parse(localStorage.getItem("user")) ||
@@ -691,6 +693,22 @@ const CinemaSearchPage = () => {
     }, [currentUserId]);
 
     const handleSearch = () => searchCinemas(zipCode);
+    const handleMapSearch = () => {
+        const query = mapQuery.trim() || zipCode.trim();
+
+        if (!query) {
+            setMapError("Please enter a place, address, or ZIP Code for map search.");
+            return;
+        }
+
+        setMapError("");
+        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+        window.open(mapsUrl, "_blank", "noopener,noreferrer");
+    };
+
+    const handleMapKeyDown = (e) => {
+        if (e.key === "Enter") handleMapSearch();
+    };
     const handleKeyDown = (e) => { if (e.key === "Enter") handleSearch(); };
     const handleViewMovies = (cinemaId, cinemaName) => {
         navigate(`/cinema/${cinemaId}`, { state: { cinemaName } });
@@ -802,7 +820,6 @@ const CinemaSearchPage = () => {
                     )}
 
                     <div style={s.searchBox}>
-                        {/* Big decorative label */}
                         <div style={s.searchBoxLabel}>ZIP CODE</div>
 
                         <div style={s.searchRow}>
@@ -839,6 +856,42 @@ const CinemaSearchPage = () => {
                         {error && (
                             <div style={s.errorBox}>
                                 <span style={{ marginRight: 8 }}>⚠</span>{error}
+                            </div>
+                        )}
+                    </div>
+
+                    <div style={s.mapSearchBox}>
+                        <div style={s.mapSearchLabel}>MAP SEARCH</div>
+                        <p style={s.mapSearchText}>
+                            Search any place, address, or ZIP Code in Google Maps.
+                        </p>
+
+                        <div style={s.searchRow}>
+                            <div style={s.inputWrap}>
+                                <span style={s.inputIcon}>🗺️</span>
+                                <input
+                                    className="zip-input"
+                                    type="text"
+                                    placeholder="Search on map, e.g. AMC Boston Common or 02116"
+                                    value={mapQuery}
+                                    onChange={(e) => setMapQuery(e.target.value)}
+                                    onKeyDown={handleMapKeyDown}
+                                    style={s.input}
+                                />
+                            </div>
+
+                            <button
+                                className="search-btn"
+                                onClick={handleMapSearch}
+                                style={s.mapSearchBtn}
+                            >
+                                Open Map ↗
+                            </button>
+                        </div>
+
+                        {mapError && (
+                            <div style={s.errorBox}>
+                                <span style={{ marginRight: 8 }}>⚠</span>{mapError}
                             </div>
                         )}
                     </div>
@@ -1079,12 +1132,19 @@ const s = {
         border: "1px solid rgba(255,255,255,0.08)",
         backdropFilter: "blur(20px)",
         boxShadow: "0 24px 60px rgba(0,0,0,0.35)",
+        marginBottom: 18,
     },
     searchBoxLabel: {
         position: "absolute", top: -10, left: 20,
         padding: "2px 10px", borderRadius: 4,
         background: "#ffd84f", color: "#0c0c14",
         fontSize: 10, fontWeight: 800, letterSpacing: "3px",
+    },
+    mapSearchText: {
+        margin: "0 0 16px",
+        color: "rgba(255,255,255,0.5)",
+        fontSize: 14,
+        lineHeight: 1.6,
     },
     searchRow: {
         display: "flex", gap: 12, flexWrap: "wrap",
@@ -1115,6 +1175,20 @@ const s = {
         fontWeight: 700, letterSpacing: "0.3px",
         color: "#0c0c14",
         background: "linear-gradient(135deg, #ffd84f 0%, #ffaa00 100%)",
+        flexShrink: 0,
+    },
+    mapSearchBtn: {
+        minWidth: 180,
+        minHeight: 54,
+        border: "none",
+        borderRadius: 10,
+        cursor: "pointer",
+        fontSize: "0.95rem",
+        fontFamily: "'DM Sans', sans-serif",
+        fontWeight: 700,
+        letterSpacing: "0.3px",
+        color: "#0c0c14",
+        background: "linear-gradient(135deg, #7dd3fc 0%, #38bdf8 100%)",
         flexShrink: 0,
     },
     spinner: {

@@ -1,12 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
-
 /***********************
- *Full disclaimer: code is AI generated & human reviewed and 
- tested as in accordance to class policy and professor permission
+ * Full disclaimer: code is AI generated & human reviewed and
+ * tested as in accordance to class policy and professor permission
  ***********************/
 
 /***********************
- * FUTURE API PLACEHOLDER
+ * API CALLS
  ***********************/
 async function fetchFlashcards() {
   const response = await fetch("http://localhost:8081/api/flashcards");
@@ -14,74 +13,98 @@ async function fetchFlashcards() {
   return data;
 }
 
+async function postScore(username, score) {
+  await fetch("http://localhost:8081/api/scores", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username,
+      score,
+      date: new Date().toISOString(),
+    }),
+  });
+}
+
+/***********************
+ * HELPERS
+ ***********************/
+const MAX_WRONG = 3;
+const POINTS_PER_MATCH = 1;
+
+function formatCards(data) {
+  const formatted = [];
+  data.forEach((item, index) => {
+    formatted.push(
+      {
+        key: `${item._id}-title`,
+        id: item._id,
+        type: "title",
+        text: item.title,
+        x: 50,
+        y: 80 + index * 180,
+      },
+      {
+        key: `${item._id}-desc`,
+        id: item._id,
+        type: "description",
+        text: item.description,
+        x: index % 2 === 0 ? 550 : 750,
+        y: 20 + index * 180 + 90,
+      }
+    );
+  });
+  return formatted;
+}
+
+/***********************
+ * COMPONENT
+ ***********************/
 const GamePage = () => {
+  // ── Core game state ──────────────────────────────────────────
   const [cards, setCards] = useState([]);
+  const [phase, setPhase] = useState("playing"); // 'playing' | 'firstWin' | 'gameOver'
+  const [username, setUsername] = useState("");
+  const [score, setScore] = useState(0);
+  const [wrongCount, setWrongCount] = useState(0);
+  const [hasWonOnce, setHasWonOnce] = useState(false);
+
+  // ── Drag state ───────────────────────────────────────────────
   const dragItem = useRef(null);
   const offset = useRef({ x: 0, y: 0 });
 
-  /***********************
-   * INIT DATA
-   ***********************/
+  // ── Card loading ─────────────────────────────────────────────
+  const loadCards = async () => {
+    const data = await fetchFlashcards();
+    setCards(formatCards(data));
+  };
+
+  // ── On mount: read username from localStorage and load cards ──
   useEffect(() => {
-    const init = async () => {
-      const data = await fetchFlashcards();
+    const storedUsername = localStorage.getItem("username") || "Player";
+    setUsername(storedUsername);
+    loadCards();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-      const formatted = [];
-
-      data.forEach((item, index) => {
-        formatted.push(
-          //flashcards -- new styling
-          {
-            key: `${item._id}-title`,
-            id: item._id,
-            type: "title",
-            text: item.title,
-            x: 50,
-            y: 80 + index * 180
-          },
-          // Description cards - right column, staggered
-          {
-            key: `${item._id}-desc`,
-            id: item._id,
-            type: "description",
-            text: item.description,
-            x: index % 2 === 0 ? 550 : 750,  // alternates between 550 and 750
-            y: 20 + index * 180 + 90
-          }
-
-        );
-      });
-
-      setCards(formatted);
-    };
-
-    init();
-  }, []);
-
-  /***********************
-   * DRAG HANDLERS
-   ***********************/
+  // ── Drag handlers ────────────────────────────────────────────
   const handleMouseDown = (e, key) => {
     dragItem.current = key;
-
     const card = cards.find((c) => c.key === key);
     offset.current = {
       x: e.clientX - card.x,
-      y: e.clientY - card.y
+      y: e.clientY - card.y,
     };
   };
 
   const handleMouseMove = (e) => {
     if (!dragItem.current) return;
-
     setCards((prev) =>
       prev.map((card) =>
         card.key === dragItem.current
           ? {
-            ...card,
-            x: e.clientX - offset.current.x,
-            y: e.clientY - offset.current.y
-          }
+              ...card,
+              x: e.clientX - offset.current.x,
+              y: e.clientY - offset.current.y,
+            }
           : card
       )
     );
@@ -91,39 +114,75 @@ const GamePage = () => {
     dragItem.current = null;
   };
 
-  /***********************
-   * MATCH CHECK
-   ***********************/
-  const checkMatch = (cardA, cardB) => {
-    if (cardA.id !== cardB.id) return false;
-    if (cardA.type === cardB.type) return false;
-    return true;
-  };
+  // ── Match logic ──────────────────────────────────────────────
+  const checkMatch = (cardA, cardB) =>
+    cardA.id === cardB.id && cardA.type !== cardB.type;
 
   const handleDrop = (draggedCard) => {
-    setCards((prev) => {
-      const remaining = [...prev];
+    if (phase !== "playing") return;
 
-      const target = remaining.find(
-        (c) =>
-          c !== draggedCard &&
-          Math.abs(c.x - draggedCard.x) < 80 &&
-          Math.abs(c.y - draggedCard.y) < 80
-      );
+    const target = cards.find(
+      (c) =>
+        c.key !== draggedCard.key &&
+        Math.abs(c.x - draggedCard.x) < 80 &&
+        Math.abs(c.y - draggedCard.y) < 80
+    );
 
-      if (target && checkMatch(draggedCard, target)) {
-        return remaining.filter(
+    if (!target) return; // dropped in empty space — no penalty
+
+    if (checkMatch(draggedCard, target)) {
+      // ✅ Correct match
+      setScore((s) => s + POINTS_PER_MATCH);
+      setCards((prev) =>
+        prev.filter(
           (c) => c.key !== draggedCard.key && c.key !== target.key
-        );
-      }
-
-      return prev;
-    });
+        )
+      );
+    } else {
+      // ❌ Wrong match
+      setWrongCount((w) => w + 1);
+    }
   };
 
-  /***********************
-   * RENDER
-   ***********************/
+  // ── React to wrong count reaching limit ──────────────────────
+  useEffect(() => {
+    if (phase !== "playing") return;
+    if (wrongCount >= MAX_WRONG) {
+      postScore(username, score);
+      setPhase("gameOver");
+    }
+  }, [wrongCount]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── React to all cards being cleared ────────────────────────
+  useEffect(() => {
+    if (phase !== "playing") return;
+    if (cards.length === 0) {
+      if (!hasWonOnce) {
+        // First time clearing the board — show "You Win!" modal
+        setHasWonOnce(true);
+        setPhase("firstWin");
+      } else {
+        // Endless mode — silently load a new round
+        loadCards();
+      }
+    }
+  }, [cards]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Modal actions ────────────────────────────────────────────
+  const handleFirstWinPlayAgain = async () => {
+    await loadCards();
+    setPhase("playing");
+  };
+
+  const handleGameOverPlayAgain = async () => {
+    setScore(0);
+    setWrongCount(0);
+    setHasWonOnce(false);
+    await loadCards();
+    setPhase("playing");
+  };
+
+  // ── Render ───────────────────────────────────────────────────
   return (
     <div
       onMouseMove={handleMouseMove}
@@ -132,10 +191,11 @@ const GamePage = () => {
         fontFamily: "Arial",
         height: "100vh",
         overflow: "hidden",
-        position: "relative"
+        position: "relative",
       }}
     >
       <style>{`
+        /* ── Cards ──────────────────────────── */
         .box {
           position: absolute;
           padding: 15px;
@@ -146,24 +206,131 @@ const GamePage = () => {
           text-align: center;
           user-select: none;
         }
+        .title       { background: #e3f2fd; }
+        .description { background: #fce4ec; }
 
-        .title {
-          background: #e3f2fd;
+        /* ── HUD ────────────────────────────── */
+        .hud-score {
+          position: fixed;
+          top: 16px;
+          right: 24px;
+          font-size: 1.1rem;
+          font-weight: bold;
+          background: #fff;
+          border: 2px solid #1976d2;
+          border-radius: 8px;
+          padding: 8px 18px;
+          z-index: 100;
+          color: #1976d2;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .hud-wrong {
+          position: fixed;
+          top: 16px;
+          left: 24px;
+          font-size: 1rem;
+          font-weight: bold;
+          background: #fff;
+          border: 2px solid #e53935;
+          border-radius: 8px;
+          padding: 8px 18px;
+          z-index: 100;
+          color: #e53935;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
-        .description {
-          background: #fce4ec;
+        /* ── Modal overlay ──────────────────── */
+        .modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.45);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
         }
+        .modal {
+          background: #fff;
+          border-radius: 16px;
+          padding: 40px 48px;
+          text-align: center;
+          min-width: 320px;
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+        }
+        .modal h2 {
+          margin: 0 0 8px;
+          font-size: 2rem;
+        }
+        .modal p {
+          margin: 0;
+          font-size: 1rem;
+          color: #555;
+        }
+        .modal .score-line {
+          font-size: 1.2rem;
+          font-weight: bold;
+          color: #1976d2;
+          margin: 4px 0 12px;
+        }
+        .modal button {
+          margin-top: 12px;
+          padding: 12px 36px;
+          font-size: 1rem;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          background: #1976d2;
+          color: #fff;
+          font-weight: bold;
+          transition: background 0.15s;
+        }
+        .modal button:hover  { background: #1565c0; }
+        .modal button:active { background: #0d47a1; }
       `}</style>
 
+      {/* ── HUD (score + wrong count) ─────── */}
+      <>
+        <div className="hud-score">Score: {score}</div>
+        <div className="hud-wrong">
+          {"✗".repeat(wrongCount)}{"○".repeat(MAX_WRONG - wrongCount)}{" "}
+          {wrongCount}/{MAX_WRONG}
+        </div>
+      </>
+
+      {/* ── "You Win!" modal (first clear) ── */}
+      {phase === "firstWin" && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h2>You Win!</h2>
+            <p>You matched all the cards!</p>
+            <p className="score-line">Score: {score}</p>
+            <button onClick={handleFirstWinPlayAgain}>Play Again?</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── "Game Over!" modal ────────────── */}
+      {phase === "gameOver" && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h2>Game Over!</h2>
+            <p>You made {MAX_WRONG} wrong matches.</p>
+            <p className="score-line">Final Score: {score}</p>
+            <button onClick={handleGameOverPlayAgain}>Play Again?</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Cards ────────────────────────── */}
       {cards.map((card) => (
         <div
           key={card.key}
           className={`box ${card.type}`}
-          style={{
-            left: card.x,
-            top: card.y
-          }}
+          style={{ left: card.x, top: card.y }}
           onMouseDown={(e) => handleMouseDown(e, card.key)}
           onMouseUp={() => handleDrop(card)}
         >

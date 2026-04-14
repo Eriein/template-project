@@ -1,18 +1,14 @@
 import React from "react";
-// We use Route in order to define the different routes of our application
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import './css/card.css';
 import './index.css';
 
-// We import all the components we need in our app
 import Navbar from "./components/navbar";
 import LandingPage from "./components/pages/landingPage";
 import HomePage from "./components/pages/homePage";
 import Login from "./components/pages/loginPage";
 import Signup from "./components/pages/registerPage";
 import PrivateUserProfile from "./components/pages/privateUserProfilePage";
-import MbtaAlertsPage from "./components/pages/mbtaAlerts";
-import MbtaArrivalsPage from "./components/pages/mbtaArrivalsPage";
 import MovieDetailPage from "./components/pages/movieDetailPage";
 import { createContext, useState, useEffect } from "react";
 import getUserInfo from "./utilities/decodeJwt";
@@ -20,40 +16,43 @@ import CinemaSearchPage from "./components/pages/cinemaSearchPage";
 import CinemaDetailPage from "./components/pages/cinemaDetailPage";
 import GamePage from "./components/pages/gamePage";
 
-
 export const UserContext = createContext();
-//test change
-//test again
+export const LastMovieContext = createContext();
+
+const HIDE_NAVBAR_ON = ['/', '/login', '/signup'];
+
+const loadLastMovie = () => {
+  try { return JSON.parse(localStorage.getItem('lastViewedMovie')) || null; }
+  catch { return null; }
+};
+
 const App = () => {
   const [user, setUser] = useState();
+  const [lastMovie, setLastMovie] = useState(loadLastMovie);
+  const location = useLocation();
 
   useEffect(() => {
     setUser(getUserInfo());
   }, []);
 
   return (
-    <>
-      <Navbar />
-      <UserContext.Provider value={user}>
+    <UserContext.Provider value={user}>
+      <LastMovieContext.Provider value={[lastMovie, setLastMovie]}>
+        {!HIDE_NAVBAR_ON.includes(location.pathname) && <Navbar />}
         <Routes>
-          <Route exact path="/" element={<LandingPage />} />
-          <Route exact path="/home" element={<HomePage />} />
-          <Route exact path="/login" element={<Login />} />
-          <Route exact path="/signup" element={<Signup />} />
-          <Route exact path="/mbtaAlerts" element={<MbtaAlertsPage />} />
-          <Route exact path="/mbtaArrivalsPage" element={<MbtaArrivalsPage />} />
-          <Route path="/privateUserProfile" element={<PrivateUserProfile />} />
-          <Route path="/cinemas" element={<CinemaSearchPage />} />
-          <Route path="/cinema/:cinemaId" element={<CinemaDetailPage />} />
-          <Route path="/movie/:imdbId" element={<MovieDetailPage />} />
-          <Route exact path="/gamePage" element={<GamePage />} />          
-
+            <Route exact path="/" element={<LandingPage />} />
+            <Route exact path="/home" element={<HomePage />} />
+            <Route exact path="/login" element={<Login />} />
+            <Route exact path="/signup" element={<Signup />} />
+            <Route path="/privateUserProfile" element={<PrivateUserProfile />} />
+            <Route path="/cinemas" element={<CinemaSearchPage />} />
+            <Route path="/cinema/:cinemaId" element={<CinemaDetailPage />} />
+            <Route path="/movie/:imdbId" element={<MovieDetailPage />} />
+            <Route exact path="/gamePage" element={<GamePage />} />
         </Routes>
-      </UserContext.Provider>
-    </>
+      </LastMovieContext.Provider>
+    </UserContext.Provider>
   );
 };
 
-
-
-export default App
+export default App;

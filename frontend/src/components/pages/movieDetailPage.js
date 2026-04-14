@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { Alert, Badge, Container, Spinner } from 'react-bootstrap';
 import '../../css/movieDetailPage.css';
 import getUserInfo from '../../utilities/decodeJwt';
+import { LastMovieContext } from '../../App';
 
 const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_SERVER_URI || 'http://localhost:8081';
 
@@ -34,6 +35,7 @@ const MovieDetailPage = () => {
   const [aiReviewDeletingId, setAiReviewDeletingId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  const [, setLastMovie] = useContext(LastMovieContext);
   const userId = user?.id;
 
   useEffect(() => {
@@ -58,6 +60,13 @@ const MovieDetailPage = () => {
 
         if (!cancelled) {
           setMovie(response.data);
+          const viewed = {
+            imdbId: response.data.imdbId,
+            title: response.data.title,
+            poster: response.data.poster,
+          };
+          localStorage.setItem('lastViewedMovie', JSON.stringify(viewed));
+          setLastMovie(viewed);
         }
       } catch (err) {
         if (cancelled) return;
