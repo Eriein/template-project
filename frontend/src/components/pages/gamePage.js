@@ -56,6 +56,7 @@ function formatCards(data) {
   return formatted;
 }
 
+
 /***********************
  * COMPONENT
  ***********************/
@@ -77,6 +78,20 @@ const GamePage = () => {
     const data = await fetchFlashcards();
     setCards(formatCards(data));
   };
+/* Start of adding stopwatch state*/
+const [elapsedTime, setElapsedTime] = useState(0);
+const [isRunning, setIsRunning] = useState(false);
+
+const timerRef = useRef(null);
+const startRef = useRef(0);
+/* End of adding stopwatch state*/
+/* Start of adding stopwatch reset*/
+const resetTimer = () => {
+  if (timerRef.current) clearInterval(timerRef.current);
+  setElapsedTime(0);
+  setIsRunning(false);
+};
+/* End of adding stopwatch reset*/
 
   // ── On mount: read username from localStorage and load cards ──
   useEffect(() => {
@@ -84,6 +99,15 @@ const GamePage = () => {
     setUsername(storedUsername);
     loadCards();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* Start of adding stopwatch load when cards load*/
+useEffect(() => {
+  if (cards.length > 0 && !isRunning) {
+    startTimer();
+  }
+}, [cards]);
+/* End of adding stopwatch load when cards load*/
+
 
   // ── Drag handlers ────────────────────────────────────────────
   const handleMouseDown = (e, key) => {
@@ -143,6 +167,16 @@ const GamePage = () => {
       setWrongCount((w) => w + 1);
     }
   };
+/*Start of adding stopwatch logic*/
+const startTimer = () => {
+  setIsRunning(true);
+  startRef.current = Date.now() - elapsedTime;
+
+  timerRef.current = setInterval(() => {
+    setElapsedTime(Date.now() - startRef.current);
+  }, 1000);
+};
+/*End of adding stopwatch logic*/
 
   // ── React to wrong count reaching limit ──────────────────────
   useEffect(() => {
@@ -154,7 +188,7 @@ const GamePage = () => {
   }, [wrongCount]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── React to all cards being cleared ────────────────────────
-  useEffect(() => {
+  /*useEffect(() => {
     if (phase !== "playing") return;
     if (cards.length === 0) {
       if (!hasWonOnce) {
@@ -166,10 +200,33 @@ const GamePage = () => {
         loadCards();
       }
     }
-  }, [cards]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [cards]); // eslint-disable-line react-hooks/exhaustive-deps*/
+  
+  /* I replaced the abouve commented out useEffect with the new one below*/
+  useEffect(() => {
+  if (phase !== "playing") return;
+
+  if (cards.length === 0) {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    setIsRunning(false);
+
+    console.log("Round complete time:", elapsedTime);
+
+    if (!hasWonOnce) {
+      setHasWonOnce(true);
+      setPhase("firstWin");
+    } else {
+      loadCards(); // next attempt
+    }
+  }
+}, [cards, phase, elapsedTime, hasWonOnce]);
 
   // ── Modal actions ────────────────────────────────────────────
   const handleFirstWinPlayAgain = async () => {
+    resetTimer(); // Only Stopwatch addition handleFirstWinPlayAgain
     await loadCards();
     setPhase("playing");
   };
@@ -178,6 +235,9 @@ const GamePage = () => {
     setScore(0);
     setWrongCount(0);
     setHasWonOnce(false);
+
+    resetTimer(); // Only Stopwatch addition handleGameOverPlayAgain
+
     await loadCards();
     setPhase("playing");
   };
@@ -224,6 +284,23 @@ const GamePage = () => {
           color: #1976d2;
           box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
+
+        /*stopwatch*/
+        .hud-timer {
+          position: fixed;
+          top: 70px; /* this pushes it below score */
+          right: 24px;
+          font-size: 1.1rem;
+          font-weight: bold;
+          background: #fff;
+          border: 2px solid #d4a017;
+          border-radius: 8px;
+          padding: 8px 18px;
+          z-index: 100;
+          color: #d4a017;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
         .hud-wrong {
           position: fixed;
           top: 16px;
@@ -300,14 +377,19 @@ const GamePage = () => {
           {wrongCount}/{MAX_WRONG}
         </div>
       </>
-
+      
+      {/* ── HUD for stopwatch ─────── */}
+      <div className="hud-timer">
+      Time: {(elapsedTime / 1000).toFixed(1)}s
+      </div>
+      
       {/* ── "You Win!" modal (first clear) ── */}
       {phase === "firstWin" && (
         <div className="modal-overlay">
           <div className="modal">
             <h2>You Win!</h2>
             <p>You matched all the cards!</p>
-            <p className="score-line">Score: {score}</p>
+            <p className="score-line">Score: {score} | Time: {(elapsedTime / 1000).toFixed(1)}s</p>
             <button onClick={handleFirstWinPlayAgain}>Play Again?</button>
           </div>
         </div>
