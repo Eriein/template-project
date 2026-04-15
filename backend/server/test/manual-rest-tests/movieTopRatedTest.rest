@@ -1,22 +1,2 @@
 ### [GET] Top rated movies — returns up to 10 results from TMDB
 GET http://localhost:8081/movies/top-rated
-
-### Expected response shape:
-### {
-###   "results": [
-###     {
-###       "imdbId": "tt...",
-###       "title": "...",
-###       "year": "...",
-###       "poster": "https://image.tmdb.org/t/p/w500/...",
-###       "rating": "9.3"
-###     },
-###     ...
-###   ]
-### }
-
-### Verify:
-### - results array has 10 items
-### - every item has a non-null imdbId (tt format)
-### - every poster URL starts with https://image.tmdb.org
-### - rating is a string formatted to 1 decimal place

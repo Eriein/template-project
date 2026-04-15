@@ -1,5 +1,5 @@
 ### [GET] Search by title — returns results with posters only
-GET http://localhost:8081/movieus/search?query=inception
+GET http://localhost:8081/movies/search?query=inception
 
 ### [GET] Search with pagination — page 2
 GET http://localhost:8081/movies/search?query=batman&page=2
