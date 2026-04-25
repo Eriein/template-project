@@ -81,7 +81,7 @@ const MovieDetailPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [imdbId]);
+  }, [imdbId, setLastMovie]);
 
   const actors = useMemo(() => {
     if (!movie?.actors) return [];
