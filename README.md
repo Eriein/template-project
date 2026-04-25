@@ -1,6 +1,6 @@
 # MovieNow
 
-A full-stack MERN application for browsing movies, writing AI-generated reviews, tracking completion times, and more.
+A full-stack MERN application for browsing movies, generating AI-generated reviews, chatting with AI, tracking completion times, and more.
 
 ## Features
 
