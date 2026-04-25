@@ -5,6 +5,7 @@ import { Alert, Badge, Container, Spinner } from 'react-bootstrap';
 import '../../css/movieDetailPage.css';
 import getUserInfo from '../../utilities/decodeJwt';
 import { LastMovieContext } from '../../App';
+import MovieChat from './MovieChat';
 
 const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_SERVER_URI || 'http://localhost:8081';
 
@@ -34,6 +35,7 @@ const MovieDetailPage = () => {
   const [aiReviewsError, setAiReviewsError] = useState('');
   const [aiReviewDeletingId, setAiReviewDeletingId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [chatDrawerOpen, setChatDrawerOpen] = useState(false);
 
   const [, setLastMovie] = useContext(LastMovieContext);
   const userId = user?.id;
@@ -286,6 +288,14 @@ const MovieDetailPage = () => {
                   >
                     {aiReviewLoading ? 'AI is thinking...' : 'Generate AI Review'}
                   </button>
+                  <button
+                    className="movie-action-btn"
+                    type="button"
+                    onClick={() => { setChatDrawerOpen(true); setDrawerOpen(false); }}
+                    disabled={!imdbId}
+                  >
+                    Chat about this movie
+                  </button>
                   {!userId && (
                     <span className="movie-cast-helper">Sign in to generate a review.</span>
                   )}
@@ -302,8 +312,11 @@ const MovieDetailPage = () => {
 
       </Container>
 
-      {drawerOpen && (
-        <div className="ai-review-drawer-overlay" onClick={() => setDrawerOpen(false)} />
+      {(drawerOpen || chatDrawerOpen) && (
+        <div
+          className="ai-review-drawer-overlay"
+          onClick={() => { setDrawerOpen(false); setChatDrawerOpen(false); }}
+        />
       )}
       <aside className={`ai-review-drawer${drawerOpen ? ' is-open' : ''}`}>
         <div className="ai-review-drawer__header">
@@ -386,6 +399,23 @@ const MovieDetailPage = () => {
               ))}
             </div>
           )}
+        </div>
+      </aside>
+
+      <aside className={`movie-chat-drawer${chatDrawerOpen ? ' is-open' : ''}`}>
+        <div className="movie-chat-drawer__header">
+          <h2>Movie Chat</h2>
+          <button
+            className="ai-review-drawer__close"
+            type="button"
+            onClick={() => setChatDrawerOpen(false)}
+            aria-label="Close chat"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="movie-chat-drawer__body">
+          <MovieChat imdbId={imdbId} userId={userId} />
         </div>
       </aside>
     </div>

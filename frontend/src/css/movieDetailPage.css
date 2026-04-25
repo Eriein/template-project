@@ -532,6 +532,223 @@
   font-size: 0.9rem;
 }
 
+/* Movie Chat Drawer */
+
+.movie-chat-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 560px;
+  max-width: 92vw;
+  background: #120709;
+  border-left: 1px solid rgba(236, 19, 37, 0.25);
+  box-shadow: -16px 0 48px rgba(0, 0, 0, 0.6);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.movie-chat-drawer.is-open {
+  transform: translateX(0);
+}
+
+.movie-chat-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(13, 7, 9, 0.8);
+  flex-shrink: 0;
+}
+
+.movie-chat-drawer__header h2 {
+  font-family: "Outfit", sans-serif;
+  font-size: 1.15rem;
+  margin: 0;
+  color: #f5f1f2;
+}
+
+.movie-chat-drawer__body {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Movie Chat Component */
+
+.movie-chat {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.movie-chat__messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.movie-chat__empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin: auto;
+  padding: 24px 0;
+}
+
+.movie-chat__empty {
+  margin: 0;
+  color: rgba(245, 241, 242, 0.45);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.movie-chat__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.movie-chat__chip {
+  background: rgba(236, 19, 37, 0.1);
+  border: 1px solid rgba(236, 19, 37, 0.3);
+  color: #f7d7da;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.movie-chat__chip:hover:not(:disabled) {
+  background: rgba(236, 19, 37, 0.22);
+  border-color: rgba(236, 19, 37, 0.55);
+}
+
+.movie-chat__chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.movie-chat__bubble {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 80%;
+}
+
+.movie-chat__bubble--user {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.movie-chat__bubble--model {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.movie-chat__label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(245, 241, 242, 0.45);
+}
+
+.movie-chat__bubble p {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.movie-chat__bubble--user p {
+  background: rgba(236, 19, 37, 0.2);
+  border: 1px solid rgba(236, 19, 37, 0.35);
+  color: #f5f1f2;
+  border-bottom-right-radius: 4px;
+}
+
+.movie-chat__bubble--model p {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(245, 241, 242, 0.88);
+  border-bottom-left-radius: 4px;
+}
+
+.movie-chat__thinking {
+  color: rgba(245, 241, 242, 0.5) !important;
+  font-style: italic;
+}
+
+.movie-chat__error {
+  margin: 0;
+  padding: 10px 24px;
+  color: #f7d7da;
+  background: rgba(236, 19, 37, 0.12);
+  border-top: 1px solid rgba(236, 19, 37, 0.25);
+  font-size: 0.88rem;
+}
+
+.movie-chat__input-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  padding: 16px 24px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.movie-chat__input {
+  flex: 1;
+  background: rgba(12, 6, 8, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #f5f1f2;
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.95rem;
+  padding: 10px 14px;
+  resize: none;
+  transition: border-color 0.15s ease;
+}
+
+.movie-chat__input:focus {
+  outline: none;
+  border-color: rgba(236, 19, 37, 0.5);
+}
+
+.movie-chat__input:disabled {
+  opacity: 0.6;
+}
+
+.movie-chat__char-count {
+  padding: 0 24px 14px;
+  font-size: 0.72rem;
+  color: rgba(245, 241, 242, 0.35);
+  text-align: right;
+  font-family: "Source Sans 3", sans-serif;
+}
+
+.movie-chat__signin {
+  padding: 28px 24px;
+  margin: 0;
+  color: rgba(245, 241, 242, 0.55);
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.95rem;
+}
+
 .ai-review-drawer__section-header {
   font-size: 0.7rem;
   text-transform: uppercase;

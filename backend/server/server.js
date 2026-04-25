@@ -29,6 +29,7 @@ const plotSummaryRoute = require('./routes/plotSummary');
 const movieSearchRoute = require('./routes/movieSearch');
 const movieTopRatedRoute = require('./routes/movieTopRated');
 const favoriteRoutes = require('./routes/favoriteRoutes');
+const movieChatRoute = require('./routes/movieChat');
 
 
 
@@ -58,6 +59,7 @@ app.use('/movies', plotSummaryRoute);
 app.use('/movies', movieSearchRoute);
 app.use('/movies', movieTopRatedRoute);
 app.use('/favorites', favoriteRoutes);
+app.use('/movies', movieChatRoute);
 
 
 app.listen(SERVER_PORT, (req, res) => {

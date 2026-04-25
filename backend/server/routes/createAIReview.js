@@ -170,6 +170,13 @@ router.post('/reviews', async (req, res) => {
     res.status(201).json({ review: newReview });
 
   } catch (err) {
+    if (err.response?.status === 503) {
+      return res.status(503).json({ error: 'Gemini is temporarily unavailable. Please try again in a moment.' });
+    }
+    if (err.response) {
+      const geminiMsg = err.response.data?.error?.message;
+      return res.status(502).json({ error: geminiMsg || 'Gemini returned an unexpected error.' });
+    }
     if (err.name === 'ValidationError') {
       return res.status(400).json({
         error: 'Validation failed.',
