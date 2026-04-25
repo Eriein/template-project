@@ -2,10 +2,8 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const axios = require('axios');
-const AIReviewCache = require('../models/AIReviewCache.js'); // Path to model
-
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+const AIReviewCache = require('../models/AIReviewCache.js');
+const { GEMINI_ENDPOINT, extractGeminiText, fetchMovieDetails } = require('../utilities/geminiUtils');
 
 // validates request fields and returns normalized values or an error descriptor
 const validateReviewRequest = ({ review, omdbId, userId }) => {
@@ -22,13 +20,6 @@ const validateReviewRequest = ({ review, omdbId, userId }) => {
   return { normalizedOmdbId, normalizedReview };
 };
 
-// pulls the generated text out of Gemini's nested response structure
-const extractGeminiText = (responseData) => {
-  const parts = responseData?.candidates?.[0]?.content?.parts || [];
-  return parts.map((p) => p.text).join('').trim();
-};
-
-// enforces the 50–1000 character limit on any review text
 const isValidReviewLength = (text) => text.length >= 50 && text.length <= 1000;
 
 const buildPrompt = ({ title, plot, actors }) => {
@@ -44,35 +35,6 @@ const buildPrompt = ({ title, plot, actors }) => {
     `Cast: ${safeActors}`,
     `Review:`
   ].join('\n');
-};
-
-const fetchMovieDetails = async (omdbId) => {
-  if (!process.env.OMDB_API_KEY) {
-    return { error: 'Configuration error.', details: ['OMDB_API_KEY is missing.'] };
-  }
-
-  const response = await axios.get('http://www.omdbapi.com/', {
-    params: {
-      apikey: process.env.OMDB_API_KEY,
-      i: omdbId,
-      plot: 'full'
-    },
-    timeout: 8000
-  });
-
-  if (!response.data || typeof response.data !== 'object') {
-    return { error: 'Invalid response from movie service.' };
-  }
-
-  if (response.data.Response === 'False') {
-    return { error: 'Movie not found.', details: [response.data.Error].filter(Boolean) };
-  }
-
-  return {
-    title: response.data.Title,
-    plot: response.data.Plot,
-    actors: response.data.Actors
-  };
 };
 
 router.post('/reviews', async (req, res) => {
@@ -199,3 +161,6 @@ router.post('/reviews', async (req, res) => {
 });
 
 module.exports = router;
+module.exports.validateReviewRequest = validateReviewRequest;
+module.exports.isValidReviewLength = isValidReviewLength;
+module.exports.buildPrompt = buildPrompt;

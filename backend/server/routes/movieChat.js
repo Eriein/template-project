@@ -2,9 +2,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const z = require('zod');
-
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+const { GEMINI_ENDPOINT, extractGeminiText, fetchMovieDetails } = require('../utilities/geminiUtils');
 
 const messageSchema = z.object({
   role: z.enum(['user', 'model']),
@@ -35,30 +33,6 @@ const buildSystemPrompt = ({ title, year, plot, actors }) =>
   `Rules: Answer questions about this movie only — if asked about unrelated topics, redirect back. ` +
   `Keep every response to 2-3 sentences maximum. Write like a knowledgeable friend, not an encyclopedia. ` +
   `No bullet points, no numbered lists, no bold or markdown formatting. Lead with the most interesting insight.`;
-
-const extractGeminiText = (responseData) => {
-  const parts = responseData?.candidates?.[0]?.content?.parts || [];
-  return parts.map((p) => p.text).join('').trim();
-};
-
-const fetchMovieDetails = async (imdbId) => {
-  if (!process.env.OMDB_API_KEY) {
-    return { error: 'OMDB_API_KEY is missing.' };
-  }
-  const response = await axios.get('http://www.omdbapi.com/', {
-    params: { apikey: process.env.OMDB_API_KEY, i: imdbId, plot: 'full' },
-    timeout: 8000
-  });
-  if (!response.data || response.data.Response === 'False') {
-    return { error: response.data?.Error || 'Movie not found.' };
-  }
-  return {
-    title: response.data.Title,
-    year: response.data.Year,
-    plot: response.data.Plot,
-    actors: response.data.Actors
-  };
-};
 
 router.post('/chat', async (req, res) => {
   const result = chatSchema.safeParse(req.body);
@@ -123,3 +97,4 @@ router.post('/chat', async (req, res) => {
 });
 
 module.exports = router;
+module.exports.buildSystemPrompt = buildSystemPrompt;
