@@ -297,7 +297,7 @@ const HomePage = () => {
         {/* Top-rated section — visible until user searches */}
         {!hasSearched && topRated.length > 0 && (
           <>
-            <p style={styles.resultsHeader}>Top 10 on IMDb</p>
+            <p style={styles.resultsHeader}>Top 10 on TMDB</p>
             <div style={styles.resultsGrid}>
               {topRated.map((movie) => (
                 <div
