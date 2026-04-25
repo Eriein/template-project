@@ -244,48 +244,50 @@ const MovieDetailPage = () => {
           onClick={() => { setDrawerOpen(false); setChatDrawerOpen(false); }}
         />
       )}
-      <aside className={`ai-review-drawer${drawerOpen ? ' is-open' : ''}`}>
-        <div className="ai-review-drawer__header">
-          <h2>AI Review</h2>
-          <div className="ai-review-drawer__header-actions">
-            <button
-              className="movie-action-btn"
-              type="button"
-              onClick={handleGenerateReview}
-              disabled={!userId || aiReviewLoading || !imdbId}
-            >
-              {aiReviewLoading ? 'Thinking...' : 'Generate New'}
-            </button>
-            <button
-              className="ai-review-drawer__close"
-              type="button"
-              onClick={() => setDrawerOpen(false)}
-              aria-label="Close drawer"
-            >
-              ✕
-            </button>
+      {drawerOpen && (
+        <div className="ai-review-modal">
+          <div className="ai-review-modal__header">
+            <h2>AI Review</h2>
+            <div className="ai-review-drawer__header-actions">
+              <button
+                className="movie-action-btn"
+                type="button"
+                onClick={handleGenerateReview}
+                disabled={!userId || aiReviewLoading || !imdbId}
+              >
+                {aiReviewLoading ? 'Thinking...' : 'Generate New'}
+              </button>
+              <button
+                className="ai-review-drawer__close"
+                type="button"
+                onClick={() => setDrawerOpen(false)}
+                aria-label="Close modal"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+          <div className="ai-review-modal__body">
+            {aiReviewError && (
+              <p className="ai-review-drawer__error">{aiReviewError}</p>
+            )}
+
+            {aiReviewLoading && (
+              <p className="movie-card__empty">AI is thinking...</p>
+            )}
+
+            {!aiReviewLoading && !aiReview && (
+              <p className="movie-card__empty">Generate a review to get started.</p>
+            )}
+
+            {!aiReviewLoading && aiReview && (
+              <div className="movie-ai-review">
+                <p>{aiReview.review}</p>
+              </div>
+            )}
           </div>
         </div>
-        <div className="ai-review-drawer__body">
-          {aiReviewError && (
-            <p className="ai-review-drawer__error">{aiReviewError}</p>
-          )}
-
-          {aiReviewLoading && (
-            <p className="movie-card__empty">AI is thinking...</p>
-          )}
-
-          {!aiReviewLoading && !aiReview && (
-            <p className="movie-card__empty">Generate a review to get started.</p>
-          )}
-
-          {!aiReviewLoading && aiReview && (
-            <div className="movie-ai-review">
-              <p>{aiReview.review}</p>
-            </div>
-          )}
-        </div>
-      </aside>
+      )}
 
       <aside className={`movie-chat-drawer${chatDrawerOpen ? ' is-open' : ''}`}>
         <div className="movie-chat-drawer__header">

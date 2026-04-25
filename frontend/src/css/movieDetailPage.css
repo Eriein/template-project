@@ -397,37 +397,40 @@
   }
 }
 
-/* AI Review Drawer */
+/* AI Review Modal */
 
 .ai-review-drawer-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
   z-index: 1000;
 }
 
-.ai-review-drawer {
+@keyframes aiModalIn {
+  from { opacity: 0; transform: translate(-50%, -48%) scale(0.96); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.ai-review-modal {
   position: fixed;
-  top: 0;
-  right: 0;
-  height: 100vh;
-  width: 560px;
-  max-width: 92vw;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 520px;
+  max-height: 70vh;
   background: #120709;
-  border-left: 1px solid rgba(236, 19, 37, 0.25);
-  box-shadow: -16px 0 48px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(236, 19, 37, 0.25);
+  border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
   z-index: 1001;
   display: flex;
   flex-direction: column;
-  transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  animation: aiModalIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-.ai-review-drawer.is-open {
-  transform: translateX(0);
-}
-
-.ai-review-drawer__header {
+.ai-review-modal__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -437,7 +440,7 @@
   flex-shrink: 0;
 }
 
-.ai-review-drawer__header h2 {
+.ai-review-modal__header h2 {
   font-family: "Outfit", sans-serif;
   font-size: 1.15rem;
   margin: 0;
@@ -475,13 +478,13 @@
   border-color: rgba(236, 19, 37, 0.5);
 }
 
-.ai-review-drawer__body {
-  padding: 28px 24px;
+.ai-review-modal__body {
+  padding: 24px;
   overflow-y: auto;
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
   font-family: "Source Sans 3", sans-serif;
 }
 
