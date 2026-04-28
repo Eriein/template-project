@@ -11,7 +11,6 @@ const CompletionTime = require("../models/completionTimesModel");
 router.get("/getAll", async (req, res) => {
   try {
     const times = await CompletionTime.find()
-      .populate("user")
       .sort({ timeInSeconds: 1 }); // fastest first
 
     res.json(times);
@@ -21,3 +20,6 @@ router.get("/getAll", async (req, res) => {
 });
 
 module.exports = router;
+
+//To test in browser use:
+//http://localhost:8081/api/completion-times/getAll

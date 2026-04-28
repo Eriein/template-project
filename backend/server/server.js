@@ -42,10 +42,11 @@ app.use('/user', getAllUsersRoute)
 app.use('/user', getUserByIdRoute)
 app.use('/user', editUser)
 app.use('/user', deleteUser)
-app.use('/completion-times', completionTimeCreate)
-app.use('/completion-times', completionTimeRead)
-app.use('/completion-times', completionTimeUpdate)
-app.use('/completion-times', completionTimeDelete)
+//Updated completionTimes below by adding "/api/"
+app.use("/api/completion-times", completionTimeCreate);
+app.use("/api/completion-times", completionTimeRead);
+app.use("/api/completion-times", completionTimeUpdate);
+app.use("/api/completion-times", completionTimeDelete);
 app.use('/user', createAIReview)
 app.use('/user', getAIReviews)
 app.use('/user', deleteAIReview)

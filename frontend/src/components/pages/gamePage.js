@@ -20,6 +20,17 @@ async function postScore(username, score) {
   });
 }
 
+async function postCompletionTime(user, timeInSeconds) {
+  await fetch("http://localhost:8081/api/completion-times/create", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user,
+      timeInSeconds,
+    }),
+  });
+}
+
 /***********************
  * HELPERS
  ***********************/
@@ -39,7 +50,7 @@ function formatCards(data) {
         y: 80 + index * 180,
       },
       {
-        key: `${item._id}-desc`,
+        key: `${item._id}-description`,
         id: item._id,
         type: "description",
         text: item.description,
@@ -55,28 +66,42 @@ function formatCards(data) {
  * COMPONENT
  ***********************/
 const GamePage = () => {
-  // GAME PHASES
-  const [phase, setPhase] = useState("idle"); // idle | loading | playing | won | lost
+  /***********************
+   * PHASE
+   ***********************/
+  const [phase, setPhase] = useState("idle");
 
-  // CORE GAME STATE (PERSISTS ACROSS ROUNDS)
+  /***********************
+   * SESSION STATE
+   ***********************/
   const [cards, setCards] = useState([]);
   const [username, setUsername] = useState("");
   const [score, setScore] = useState(0);
   const [wrongCount, setWrongCount] = useState(0);
-  const [hasWonOnce, setHasWonOnce] = useState(false);
 
-  // DRAG STATE
+  /***********************
+   * ROUND STATE
+   ***********************/
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [roundTime, setRoundTime] = useState(null);
+
+  /***********************
+   * GUARD (NO DUPLICATES)
+   ***********************/
+  const submittedRef = useRef(false);
+
+  /***********************
+   * DRAG
+   ***********************/
   const dragItem = useRef(null);
   const offset = useRef({ x: 0, y: 0 });
 
-  // TIMER STATE (RESET EACH ROUND ONLY)
-  const [elapsedTime, setElapsedTime] = useState(0);
+  /***********************
+   * TIMER
+   ***********************/
   const timerRef = useRef(null);
   const startRef = useRef(0);
 
-  /***********************
-   * TIMER CONTROL (ONLY BY PHASE)
-   ***********************/
   const startTimer = () => {
     if (timerRef.current) clearInterval(timerRef.current);
 
@@ -100,11 +125,8 @@ const GamePage = () => {
   };
 
   useEffect(() => {
-    if (phase === "playing") {
-      startTimer();
-    } else {
-      stopTimer();
-    }
+    if (phase === "playing") startTimer();
+    else stopTimer();
 
     return () => stopTimer();
   }, [phase]);
@@ -118,12 +140,15 @@ const GamePage = () => {
   };
 
   /***********************
-   * ROUND START (DOES NOT RESET SCORE/WRONG)
+   * ROUND START
    ***********************/
   const startNewRound = async () => {
     setPhase("loading");
 
-    resetTimer(); // ONLY round reset
+    resetTimer();
+
+    submittedRef.current = false;
+    setRoundTime(null);
 
     const formatted = await loadCards();
     setCards(formatted);
@@ -132,18 +157,17 @@ const GamePage = () => {
   };
 
   /***********************
-   * FULL GAME RESET (TRY AGAIN / GAME OVER)
+   * FULL RESET
    ***********************/
   const fullGameReset = async () => {
     setScore(0);
     setWrongCount(0);
-    setHasWonOnce(false);
 
     await startNewRound();
   };
 
   /***********************
-   * INITIAL LOAD
+   * INIT
    ***********************/
   useEffect(() => {
     const stored = localStorage.getItem("username") || "Player";
@@ -153,19 +177,74 @@ const GamePage = () => {
   }, []);
 
   /***********************
-   * WIN / LOSS HANDLERS
+   * WIN (IMPORTANT FLOW)
    ***********************/
-  const handleWin = () => {
+  const handleWin = async () => {
+    stopTimer();
+
+    const finalTime = elapsedTime;
+    setRoundTime(finalTime);
+
     setPhase("won");
+
+    if (submittedRef.current) return;
+    submittedRef.current = true;
+
+    try {
+      await postCompletionTime(
+        username,
+        Math.round(finalTime / 1000)
+      );
+    } catch (err) {
+      console.error(err);
+    }
   };
 
+  /***********************
+   * LOSS
+   ***********************/
   const handleLoss = () => {
+    stopTimer();
     postScore(username, score);
     setPhase("lost");
   };
 
   /***********************
-   * DRAG LOGIC
+   * MATCH LOGIC
+   ***********************/
+  const checkMatch = (a, b) => a.id === b.id && a.type !== b.type;
+
+  const handleDrop = (draggedCard) => {
+    if (phase !== "playing") return;
+
+    const target = cards.find(
+      (c) =>
+        c.key !== draggedCard.key &&
+        Math.abs(c.x - draggedCard.x) < 80 &&
+        Math.abs(c.y - draggedCard.y) < 80
+    );
+
+    if (!target) return;
+
+    if (checkMatch(draggedCard, target)) {
+      const newCards = cards.filter(
+        (c) => c.key !== draggedCard.key && c.key !== target.key
+      );
+
+      setCards(newCards);
+      setScore((s) => s + POINTS_PER_MATCH);
+
+      if (newCards.length === 0) handleWin();
+    } else {
+      const newWrong = wrongCount + 1;
+      setWrongCount(newWrong);
+
+      if (newWrong >= MAX_WRONG) handleLoss();
+    }
+  };
+
+  /***********************
+   * DRAG
    ***********************/
   const handleMouseDown = (e, key) => {
     dragItem.current = key;
@@ -200,52 +279,10 @@ const GamePage = () => {
   };
 
   /***********************
-   * MATCH LOGIC
-   ***********************/
-  const checkMatch = (a, b) => a.id === b.id && a.type !== b.type;
-
-  const handleDrop = (draggedCard) => {
-    if (phase !== "playing") return;
-
-    const target = cards.find(
-      (c) =>
-        c.key !== draggedCard.key &&
-        Math.abs(c.x - draggedCard.x) < 80 &&
-        Math.abs(c.y - draggedCard.y) < 80
-    );
-
-    if (!target) return;
-
-    if (checkMatch(draggedCard, target)) {
-      const newCards = cards.filter(
-        (c) => c.key !== draggedCard.key && c.key !== target.key
-      );
-
-      setCards(newCards);
-      setScore((s) => s + POINTS_PER_MATCH);
-
-      if (newCards.length === 0) {
-        handleWin();
-      }
-    } else {
-      const newWrong = wrongCount + 1;
-      setWrongCount(newWrong);
-
-      if (newWrong >= MAX_WRONG) {
-        handleLoss();
-      }
-    }
-  };
-
-  /***********************
-   * LOADING SCREEN
+   * LOADING
    ***********************/
   if (phase === "loading") {
-    return (
-      <div style={{ textAlign: "center", marginTop: "40vh" }}>
-        Loading...
-      </div>
-    );
+    return <div style={{ textAlign: "center", marginTop: "40vh" }}>Loading...</div>;
   }
 
   /***********************
@@ -262,6 +299,7 @@ const GamePage = () => {
         overflow: "hidden",
       }}
     >
+      {/* STYLES (CRITICAL - RESTORED) */}
       <style>{`
         .box {
           position: absolute;
@@ -330,13 +368,15 @@ const GamePage = () => {
         <div className="modal">
           <div className="modal-box">
             <h2>Round Completed!</h2>
-            <p>Time: {(elapsedTime / 1000).toFixed(1)}s</p>
+            <p>
+              Time: {(roundTime ? roundTime / 1000 : 0).toFixed(1)}s
+            </p>
             <button onClick={startNewRound}>Next Round</button>
           </div>
         </div>
       )}
 
-      {/* GAME OVER */}
+      {/* LOSS */}
       {phase === "lost" && (
         <div className="modal">
           <div className="modal-box">

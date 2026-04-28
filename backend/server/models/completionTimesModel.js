@@ -3,8 +3,7 @@ const mongoose = require("mongoose");
 const completionTimesSchema = new mongoose.Schema(
   {
     user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "users", // matches the 'users' mongoose.model 
+      type: String, // ✅ username instead of ObjectId
       required: true,
     },
     timeInSeconds: {
@@ -19,8 +18,8 @@ const completionTimesSchema = new mongoose.Schema(
     },
   },
   {
-    collection: "completionTimes", // Name of the collection
-    timestamps: true, // adds createdAt and updatedAt
+    collection: "completionTimes",
+    timestamps: true,
   }
 );
 
