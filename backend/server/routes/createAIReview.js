@@ -59,19 +59,6 @@ router.post('/reviews', async (req, res) => {
       return res.status(429).json({ error: 'AI reviews have a 30-second cooldown. Please try again shortly.' });
     }
 
-    // Daily Limit Check: Max 3 reviews in 24 hours
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const dailyReviewCount = await AIReviewCache.countDocuments({
-      userId: userId,
-      date: { $gte: twentyFourHoursAgo }
-    });
-    // disable for test
-    // if (dailyReviewCount >= 3) {
-    //   return res.status(429).json({
-    //     error: 'Daily review limit reached. Please come back tomorrow.'
-    //   });
-    // }
-
     let finalReview = normalizedReview;
 
     if (finalReview) {

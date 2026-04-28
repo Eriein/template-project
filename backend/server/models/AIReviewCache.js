@@ -28,7 +28,7 @@ const AIReviewCache= new mongoose.Schema(
   { collection: "AIReviewCache" }
 );
 
-// Index for fast lookup by user — no unique constraint so multiple reviews per movie are allowed
 AIReviewCache.index({ userId: 1 });
+AIReviewCache.index({ date: 1 }, { expireAfterSeconds: 3600 });
 
 module.exports = mongoose.model('AIReviewCache', AIReviewCache);
