@@ -56,7 +56,7 @@ router.post('/reviews', async (req, res) => {
     });
 
     if (recentReview) {
-      return res.status(429).json({ error: 'Please wait 30 seconds before posting again.' });
+      return res.status(429).json({ error: 'AI reviews have a 30-second cooldown. Please try again shortly.' });
     }
 
     // Daily Limit Check: Max 3 reviews in 24 hours

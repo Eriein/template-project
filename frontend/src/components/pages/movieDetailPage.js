@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { Alert, Badge, Container, Spinner } from 'react-bootstrap';
+import { Alert, Container, Spinner } from 'react-bootstrap';
 import '../../css/movieDetailPage.css';
 import getUserInfo from '../../utilities/decodeJwt';
 import { LastMovieContext } from '../../App';
@@ -226,11 +226,6 @@ const MovieDetailPage = () => {
                     <span className="movie-cast-helper">Sign in to generate a review.</span>
                   )}
                 </div>
-                {actors.length > 0 && (
-                  <div className="movie-cast-footer">
-                    <Badge bg="secondary">Cast list sourced from OMDb</Badge>
-                  </div>
-                )}
               </div>
             </aside>
           </div>
