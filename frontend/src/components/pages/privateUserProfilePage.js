@@ -36,6 +36,18 @@ const PrivateUserProfile = () => {
   }, []);
 
   /***********************
+ * LOAD NICKNAME (ADD THIS)
+ ***********************/
+useEffect(() => {
+  if (!user) return;
+
+  const saved = localStorage.getItem(`nickname_${user.username}`);
+  if (saved) {
+    setNickname(saved);
+  }
+}, [user]);
+
+  /***********************
    * LOAD LEADERBOARD
    ***********************/
   useEffect(() => {
@@ -74,6 +86,10 @@ const PrivateUserProfile = () => {
   };
 
   const saveNickname = () => {
+    if (!nickname.trim()) return;
+    localStorage.setItem(`nickname_${user.username}`, nickname);
+    
+
     setIsEditingNickname(false);
     setShowEmojiPicker(false);
   };
