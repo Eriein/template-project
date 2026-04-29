@@ -4,6 +4,7 @@ import Modal from "react-bootstrap/Modal";
 import Card from "react-bootstrap/Card";
 import { useNavigate } from "react-router-dom";
 import getUserInfo from "../../utilities/decodeJwt";
+import "../../css/animation.css"; // Added to import animation csss
 
 const PrivateUserProfile = () => {
   const [show, setShow] = useState(false);
@@ -104,6 +105,13 @@ useEffect(() => {
 
   return (
     <>
+        {/* 🫧 ADD THIS FIRST */}
+      <div className="bubble-container">
+        {Array.from({ length: 15 }).map((_, i) => (
+          <span key={i} className="bubble" />
+        ))}
+      </div>
+
       <div
         className="vh-100 d-flex justify-content-center align-items-center"
         style={{
